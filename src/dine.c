@@ -1,125 +1,116 @@
-#include <pthread.h>
-#include <semaphore.h>
+/********************************************
+ * Vicky Mohammad
+ * 0895381
+ * March 22, 2018
+ ********************************************/
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
- 
-#define N 5
-#define THINKING 2
-#define HUNGRY 1
-#define EATING 0
-#define LEFT (phnum + 4) % N
-#define RIGHT (phnum + 1) % N
- 
-int state[N];
-int phil[N] = { 0, 1, 2, 3, 4 };
- 
-sem_t mutex;
-sem_t S[N];
- 
-void test(int phnum)
-{
-    if (state[phnum] == HUNGRY
-        && state[LEFT] != EATING
-        && state[RIGHT] != EATING) {
-        // state that eating
-        state[phnum] = EATING;
- 
-        sleep(2);
- 
-        printf("Philosopher %d takes fork %d and %d\n",
-                      phnum + 1, LEFT + 1, phnum + 1);
- 
-        printf("Philosopher %d is Eating\n", phnum + 1);
- 
-        // sem_post(&S[phnum]) has no effect
-        // during takefork
-        // used to wake up hungry philosophers
-        // during putfork
-        sem_post(&S[phnum]);
-    }
-}
- 
-// take up chopsticks
-void take_fork(int phnum)
-{
- 
-    sem_wait(&mutex);
- 
-    // state that hungry
-    state[phnum] = HUNGRY;
- 
-    printf("Philosopher %d is Hungry\n", phnum + 1);
- 
-    // eat if neighbours are not eating
-    test(phnum);
- 
-    sem_post(&mutex);
- 
-    // if unable to eat wait to be signalled
-    sem_wait(&S[phnum]);
- 
-    sleep(1);
-}
- 
-// put down chopsticks
-void put_fork(int phnum)
-{
- 
-    sem_wait(&mutex);
- 
-    // state that thinking
-    state[phnum] = THINKING;
- 
-    printf("Philosopher %d putting fork %d and %d down\n",
-           phnum + 1, LEFT + 1, phnum + 1);
-    printf("Philosopher %d is thinking\n", phnum + 1);
- 
-    test(LEFT);
-    test(RIGHT);
- 
-    sem_post(&mutex);
-}
- 
-void* philospher(void* num)
-{
- 
-    while (1) {
- 
-        int* i = num;
- 
-        sleep(1);
- 
-        take_fork(*i);
- 
-        sleep(0);
- 
-        put_fork(*i);
-    }
-}
- 
-int main()
-{
- 
-    int i;
-    pthread_t thread_id[N];
- 
-    // initialize the semaphores
-    sem_init(&mutex, 0, 1);
- 
-    for (i = 0; i < N; i++)
- 
-        sem_init(&S[i], 0, 0);
- 
-    for (i = 0; i < N; i++) {
- 
-        // create philosopher processes
-        pthread_create(&thread_id[i], NULL,
-                       philospher, &phil[i]);
- 
-        printf("Philosopher %d is thinking\n", i + 1);
-    }
- 
-    for (i = 0; i < N; i++)
- 
-        pthread_join(thread_id[i], NULL);
-}
+#include <pthread.h>
+#define TRUE 1
+#define FALSE 2
+#define NUMBER_RANGE( var ) (var >= 48 && var <= 57)
+#define debug if(TRUE)printf
+
+/********************************************
+ * header
+ ********************************************/
+
+typedef struct{
+    int numOfPhil;
+    int lowFork;
+    int upFork;
+    int numOfPhilEating;
+    int forkSelection;
+}Philosopher;
+
+typedef struct{
+    Philosopher* phil;
+    pthread_mutex_t* forks;
+}Instance;
+
+Philosopher* newPhilosopher();
+Instance* newInstance(int numOfPhils);
+void initPThreadMutex(Instance* vars, int numOfPhils);
+int checkIfNumbers(char* string);
+
+/********************************************
+ * main
+ ********************************************/
+
+int main(int argc, char **argv){
+    //dec vars
+    char* numOfPhilsInString = argv[1];
+    char* numOfEatsInString = argv[2];
+    int numOfPhils = 0;
+    int numOfEats = 0;
+    debug("argc = %d\n", argc);
+
+    //error check
+    if(argc == 3){
+        printf("There must be 3 arguments...\n");
+        printf("Please re-run the program..\n");
+        printf("Exiting program...\n");
+        return 0;
+    }//end if
+    if(checkIfNumbers(numOfPhilsInString) == FALSE || checkIfNumbers(numOfEatsInString) == FALSE){
+        printf("Arguments must be a number...\n");
+        printf("Please re-run the program..\n");
+        printf("Exiting program...\n");
+        return 0;
+    }//end if
+
+    //convert the arg to int
+    numOfPhils = atoi(numOfPhilsInString);
+    numOfEats = atoi(numOfEatsInString);
+    Instance* vars = newInstance(numOfPhils);
+}//end main
+
+/********************************************
+ * constructors
+ ********************************************/
+
+Philosopher* newPhilosopher(){
+    Philosopher* new = malloc(sizeof(Philosopher));
+    new->numOfPhil = 0;
+    new->lowFork = 0;
+    new->upFork = 0;
+    new->numOfPhilEating = 0;
+    new->forkSelection = 0;
+    return new;
+}//end constructor
+
+Instance* newInstance(int numOfPhils){
+    Instance* new = malloc(sizeof(Instance));
+    new->phil = newPhilosopher();
+    new->forks = calloc(numOfPhils, sizeof(pthread_mutex_t));
+    return new;
+}//end constructor
+
+/********************************************
+ * functions
+ ********************************************/
+
+void initPThreadMutex(Instance* vars, int numOfPhils){
+    for(int x=0; x<numOfPhils; x++){
+        pthread_mutex_init(&vars->forks[x], NULL);
+    }//end for
+}//end func
+
+int checkIfNumbers(char* string){
+    //make sure it doesnt start at 0
+    if(strlen(string) > 1 && string[0] == '0'){
+        return FALSE;
+    }//end if
+
+    //loop through each char and check if its number
+    for(int x=0; x<strlen(string); x++){
+        if(!NUMBER_RANGE(string[x])){
+            return FALSE;
+        }//end if
+    }//end for
+    return TRUE;
+}//end func
+
