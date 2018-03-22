@@ -13,10 +13,10 @@ endif
 all: dine holes
 
 dine:  
-	$(CC)  $(CFLAGS) src/*.c -o bin/dine -pthread
+	$(CC)  $(CFLAGS) src/dine.c -o bin/dine -pthread
 
 holes:
-	$(CC)  $(CFLAGS) src/*.c -o bin/holes -lm
+	$(CC)  $(CFLAGS) src/holes.c -o bin/holes -lm
 
 valgrind:
 	valgrind -v --leak-check=full ./bin/run

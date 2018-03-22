@@ -19,15 +19,15 @@
  ********************************************/
 
 typedef struct{
-    int numOfPhil;
+    int philNumber;
     int lowFork;
     int upFork;
-    int numOfPhilEating;
+    int numOfEats;
     int forkSelection;
 }Philosopher;
 
 typedef struct{
-    Philosopher* phil;
+    Philosopher** phil;
     pthread_mutex_t* forks;
 }Instance;
 
@@ -66,6 +66,8 @@ int main(int argc, char **argv){
     numOfPhils = atoi(numOfPhilsInString);
     numOfEats = atoi(numOfEatsInString);
     Instance* vars = newInstance(numOfPhils);
+    initPThreadMutex(vars, numOfPhils);
+    
 }//end main
 
 /********************************************
@@ -74,17 +76,34 @@ int main(int argc, char **argv){
 
 Philosopher* newPhilosopher(){
     Philosopher* new = malloc(sizeof(Philosopher));
-    new->numOfPhil = 0;
+    new->philNumber = 0;
     new->lowFork = 0;
     new->upFork = 0;
-    new->numOfPhilEating = 0;
+    new->numOfEats = 0;
     new->forkSelection = 0;
     return new;
 }//end constructor
 
 Instance* newInstance(int numOfPhils){
+    //init instance to act as global
     Instance* new = malloc(sizeof(Instance));
-    new->phil = newPhilosopher();
+    // init phil
+    // For each philosopher, 
+    //assign it two forks such that phil i get forks i-1 
+    //and i for all i>0. If i=0, take fork0 and forkMax
+    new->phil = calloc(numOfPhils, sizeof(Philosopher*));
+    for(int x=0; x<numOfPhils; x++){
+        new->phil[x] = newPhilosopher();
+        new->phil[x]->philNumber = x+1;
+        new->phil[x]->upFork = x;
+        new->phil[x]->numOfEats = 0;
+        if(x == 0){
+            new->phil[x]->lowFork = numOfPhils-1;
+        }else if(x != 0){
+            new->phil[x]->lowFork = x-1;
+        }//end if
+    }//end if
+    //init forks
     new->forks = calloc(numOfPhils, sizeof(pthread_mutex_t));
     return new;
 }//end constructor
@@ -94,6 +113,7 @@ Instance* newInstance(int numOfPhils){
  ********************************************/
 
 void initPThreadMutex(Instance* vars, int numOfPhils){
+    //init the pthread mutex
     for(int x=0; x<numOfPhils; x++){
         pthread_mutex_init(&vars->forks[x], NULL);
     }//end for
