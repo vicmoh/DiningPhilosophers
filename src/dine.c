@@ -11,6 +11,8 @@
 #include <pthread.h>
 #define TRUE 1
 #define FALSE 2
+#define INVERT 1
+#define NORMAL 2
 #define NUMBER_RANGE( var ) (var >= 48 && var <= 57)
 #define debug if(TRUE)printf
 
@@ -23,18 +25,20 @@ typedef struct{
     int lowFork;
     int upFork;
     int numOfEats;
-    int forkSelection;
+    int forkType;
 }Philosopher;
 
 typedef struct{
     Philosopher** phil;
     pthread_mutex_t* forks;
+    pthread_t* tempThread;
 }Instance;
 
 Philosopher* newPhilosopher();
 Instance* newInstance(int numOfPhils);
 void initPThreadMutex(Instance* vars, int numOfPhils);
 int checkIfNumbers(char* string);
+void runSimulation(Instance* vars, int numOfPhils, int numOfEats);
 
 /********************************************
  * main
@@ -68,6 +72,8 @@ int main(int argc, char **argv){
     Instance* vars = newInstance(numOfPhils);
     initPThreadMutex(vars, numOfPhils);
     
+    //run the program
+    
 }//end main
 
 /********************************************
@@ -80,7 +86,7 @@ Philosopher* newPhilosopher(){
     new->lowFork = 0;
     new->upFork = 0;
     new->numOfEats = 0;
-    new->forkSelection = 0;
+    new->forkType = 0;
     return new;
 }//end constructor
 
@@ -105,6 +111,7 @@ Instance* newInstance(int numOfPhils){
     }//end if
     //init forks
     new->forks = calloc(numOfPhils, sizeof(pthread_mutex_t));
+    new->tempThread = calloc(numOfPhils, sizeof(pthread_t));
     return new;
 }//end constructor
 
@@ -134,3 +141,22 @@ int checkIfNumbers(char* string){
     return TRUE;
 }//end func
 
+void runSimulation(Instance* vars, int numOfPhils, int numOfEats){
+    //assign the relevent vars to the object being passed into the thread
+    for(int x=0; x<numOfPhils; x++){
+        vars->phil[x]->numOfEats = numOfEats;
+        if(numOfPhils-1 == x){
+            vars->phil[x]->forkType = INVERT;
+        }//end if
+        //pthread_create(&vars->tempThread[x], NULL, &);
+    }//end for
+
+    for(int x =0; x<numOfPhils; x++){
+        pthread_join(vars->tempThread[x], NULL);
+    }//end for
+    free(vars->tempThread);
+}//end func
+
+void* philosopherEating(void* arg){
+    return NULL;
+}//end func
