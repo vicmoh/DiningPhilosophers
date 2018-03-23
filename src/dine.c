@@ -36,9 +36,10 @@ typedef struct{
     Philosopher** phil;
     pthread_t* tempThread;
 }Dine;
-//functions/methods
+//objects
 Philosopher* newPhilosopher();
 Dine* newDine(int numOfPhils);
+//functions/methods
 int checkIfNumbers(char* string);
 void runSimulation(Dine* vars, int numOfPhils, int numOfEats);
 void* philosopherDiner(void* arg);
