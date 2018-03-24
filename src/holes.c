@@ -67,13 +67,16 @@ void loadData(Hole* hole){
     //read each line in the file
     printf("Loading data...\n");
     while(fgets(line, sizeof(line), filePointer) != NULL){
+        line[strcspn(line, "\n\r")] = '\0';
         arrayOfString[x] = setString(line);
-        debug("arrayOfString %d = %s", x, arrayOfString[x]);
+        debug("arrayOfString %d = %s\n", x, arrayOfString[x]);
         x++;
         arrayOfString = realloc(arrayOfString, sizeof(arrayOfString)*x+1);
     }//end while
     printf("\nData loaded\n");
     debug("numOfArray = %d\n", x);
+
+    //assign the to the hole
     hole->numOfArray = x;
     hole->arrayOfData = arrayOfString;
     fclose(filePointer);
@@ -92,6 +95,17 @@ int main(int argc, char** argv){
     debug("fileName = %s\n", argv[1]);
     strcpy(hole->fileName, argv[1]);
     loadData(hole);
+
+    //debug
+    for(int x=0; x<hole->numOfArray; x++){
+        debug("debug data = %s\n", hole->arrayOfData[x]);
+    }//end for
+    debug("\n");
+
+
+    for(int x=0; x<hole->numOfArray; x++){
+        
+    }//end for
 
     return 0;
 }//end main

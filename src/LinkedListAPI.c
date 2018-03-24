@@ -323,3 +323,17 @@ void* findElement(List list, bool (*customCompare)(const void* first,const void*
     }//end while
     return NULL;
 }//end func
+
+char* dummyPrint(void* toBePrinted){
+    char* newString = calloc(256, sizeof(char));
+    strcat(newString, "");
+    return newString;
+}//end func
+
+void dummmyDelete(void* toBeDeleted){
+    return;
+}//end func
+
+int dummyCompare(const void* first, const void* second){
+    return 0;
+}//end func
