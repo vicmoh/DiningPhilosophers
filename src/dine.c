@@ -199,7 +199,7 @@ int waiting(){
     //the waiting time will be random from 1 to 2 sleep
     debug("calling waiting()\n");
     int randomNum = rand() % 2;
-    int waitTime = sleep(randomNum + 1);
+    int waitTime = sleep(1);
     debug("wait time = %d\n", waitTime);
     return waitTime;
 }//end func 
