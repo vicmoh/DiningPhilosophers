@@ -16,10 +16,10 @@
 #define memSize 128
 
 typedef struct{
-    char* arrayOfData[256];
+    char** arrayOfData;
     int numOfArray;
     char fileName[256];
-}Holes;
+}Hole;
 
 typedef struct{
     char name[256];
@@ -28,27 +28,34 @@ typedef struct{
     int insertPosition;
 }Process;
 
-Holes* newHoles(){
-    Holes* new = malloc(sizeof(Holes));
-    new->arrayOfData[0] = '\0';
+Hole* newHole(){
+    Hole* new = malloc(sizeof(Hole));
+    new->arrayOfData = NULL;
     new->numOfArray = 0;
+    return new;
 }//end constructor
 
 Process* newProcess(){
     Process* new = malloc(sizeof(Process));
-    new->name[0] = '\0'
+    new->name[0] = '\0';
     new->size = 0;
     new->isInserted = 0;
-    nwe->insertPosition = 0;
+    new->insertPosition = 0;
+    return new;
 }//end constructor
+
+char* setString(char* string){
+    char* newString = calloc(strlen(string)+99, sizeof(char));
+    strcpy(newString, string);
+    return newString;
+}//end func
 
 void loadData(Hole* hole){
     //open file and check if there is error
     FILE* filePointer = fopen(hole->fileName, "r");
     if(filePointer == NULL){
-        printf("Error, file is NULL\n");
-        printf("Please input a valid file\n");
-        return 0;
+        printf("Invalid file, exiting program\n");
+        exit(0);
     }//end if
 
     //dec vars
@@ -60,27 +67,31 @@ void loadData(Hole* hole){
     //read each line in the file
     printf("Loading data...\n");
     while(fgets(line, sizeof(line), filePointer) != NULL){
-        strcpy(arrayOfString[x], line);
-        debug(arrayOfString[x]);
+        arrayOfString[x] = setString(line);
+        debug("arrayOfString %d = %s", x, arrayOfString[x]);
         x++;
         arrayOfString = realloc(arrayOfString, sizeof(arrayOfString)*x+1);
     }//end while
-    printf("Data loaded\n");
+    printf("\nData loaded\n");
     debug("numOfArray = %d\n", x);
-    Holes->numOfArray = x;
-    Holes->arrayOfData = arrayOfString;
+    hole->numOfArray = x;
+    hole->arrayOfData = arrayOfString;
     fclose(filePointer);
 }//end func
 
 int main(int argc, char** argv){
+    //error check the num of argument
     debug("argc = %d\n", argc);
-    if(argc != 1){
-        printf("Invalid argument");
+    if(argc != 2){
+        printf("Invalid argument\n");
         return 0;
     }//end if
-    char* fileName[256];
-    strcpy(fileName, argv[1]);
-    debug("fileName = %s\n", fileName);
+
+    //dec vars and set
+    Hole* hole = newHole();
+    debug("fileName = %s\n", argv[1]);
+    strcpy(hole->fileName, argv[1]);
+    loadData(hole);
 
     return 0;
 }//end main
