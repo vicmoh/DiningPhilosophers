@@ -20,3 +20,6 @@ holes:
 
 valgrind:
 	valgrind -v --leak-check=full ./bin/run
+
+clean:
+	rm bin/*
