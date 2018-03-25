@@ -116,7 +116,7 @@ int main(int argc, char** argv){
 
     //debug
     for(int x=0; x<hole->numOfArray; x++){
-        debug("debug data = %s\n", hole->arrayOfData[x]);
+        debug("debug data = (%s)\n", hole->arrayOfData[x]);
     }//end for
     debug("\n");
 
@@ -128,8 +128,11 @@ int main(int argc, char** argv){
 
     for(int x=0; x<hole->numOfArray; x++){
         char** token = split(hole->arrayOfData[x], " ");
-        debug("name = %s, size = %s\n", token[0], token[1]);
+        debug("debug: name = (%s), size = (%s)\n", token[0], token[1]);
     }//end for
+    debug("\n");
+
+    
 
     return 0;
 }//end main
