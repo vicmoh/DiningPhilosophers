@@ -9,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "LinkedListAPI.h"
 #define TRUE 1
 #define FALSE 0
 #define NUMBER_RANGE( var ) (var >= 48 && var <= 57)
@@ -102,10 +103,20 @@ int main(int argc, char** argv){
     }//end for
     debug("\n");
 
+    //create 4 queues
+    List* q1 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* q2 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* q3 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* q4 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
 
     for(int x=0; x<hole->numOfArray; x++){
-        
+        char name[256] = {"\0"};
+        int size = 0;
+        scanf(hole->arrayOfData[x], "%s %d", name, size);
+        debug("name = %s, size = %d\n", name, size);
     }//end for
+    
+    
 
     return 0;
 }//end main

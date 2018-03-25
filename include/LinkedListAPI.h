@@ -55,7 +55,7 @@ int getLength(List list);
 void* findElement(List list, bool (*customCompare)(const void* first,const void* second), const void* searchRecord);
 //dummy functions for init the list
 char* dummyPrint(void* toBePrinted);
-void dummmyDelete(void* toBeDeleted);
+void dummyDelete(void* toBeDeleted);
 int dummyCompare(const void* first, const void* second);
 
 #endif

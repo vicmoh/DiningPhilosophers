@@ -330,7 +330,7 @@ char* dummyPrint(void* toBePrinted){
     return newString;
 }//end func
 
-void dummmyDelete(void* toBeDeleted){
+void dummyDelete(void* toBeDeleted){
     return;
 }//end func
 
