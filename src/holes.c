@@ -29,6 +29,18 @@ typedef struct{
     int insertPosition;
 }Process;
 
+typedef struct{
+    double sumOfMemUsage;
+    int numOfSums;
+    double usagePercentage; 
+    int numOfMemUsed;
+    int* proccessMap;
+    int numberOfHoles;
+    int numberOfProcesses;
+    int currentProcessMem;
+    int previousProcessMem;
+}Display;
+
 Hole* newHole(){
     Hole* new = malloc(sizeof(Hole));
     new->arrayOfData = NULL;
@@ -42,6 +54,23 @@ Process* newProcess(){
     new->size = 0;
     new->isInserted = 0;
     new->insertPosition = 0;
+    return new;
+}//end constructor
+
+Display* newDisplay(List* queue){
+    Display* new = malloc(sizeof(Display));
+    new->sumOfMemUsage = 0;
+    new->numOfSums = 0;
+    new->usagePercentage = 0; 
+    new->numOfMemUsed = 0;
+    new->proccessMap = calloc(getLength(*queue), sizeof(new->proccessMap));
+    for(int x=0; x<getLength(*queue); x++){
+        new->proccessMap[x] = FALSE;
+    }//end for
+    new->numberOfHoles = 0;
+    new->numberOfProcesses = 0;
+    new->currentProcessMem = FALSE;
+    new->previousProcessMem = FALSE;
     return new;
 }//end constructor
 
@@ -100,6 +129,106 @@ char** split(char* stringToBeSplit, const char* delimiter){
     return arrayOfToken;
 }//end func
 
+void printMem(Process* process, char** memoryMap, List* queue){
+    //dec vars
+    Display* data = newDisplay(queue);
+
+    //for through the mem
+    for(int x=0; x<MEM_SIZE; x++){
+        //set current mem
+        char* currentMem = setString(memoryMap[x]);
+        
+        //find which process is done
+        for(int y=0; y<getLength(*queue); y++){
+            if(strcmp(currentMem, memoryMap[y]) == 0){
+                data->proccessMap[y] = TRUE;
+            }//end if
+        }//end for
+
+        if(strlen(memoryMap[x]) > 0){
+            data->numOfMemUsed = data->numOfMemUsed + 1;
+        }//end if
+    }//end for
+
+    //calc the usage percentage
+    data->usagePercentage = (double)data->numOfMemUsed/(double)MEM_SIZE;
+    data->usagePercentage = data->usagePercentage * 100;
+    data->sumOfMemUsage = data->sumOfMemUsage + data->usagePercentage;
+    data->numOfSums = data->numOfSums + 1;
+
+    //count number of process
+    for(int x=0; x<getLength(*queue); x++){
+        if(data->proccessMap[x] == TRUE){
+            data->numberOfProcesses = data->numberOfProcesses + 1;
+        }//end if
+    }//end for
+
+    //find the number if holes
+    if(strlen(memoryMap[0]) < 1){
+        data->currentProcessMem = TRUE;
+    }//end if
+    for(int x=1; x<MEM_SIZE; x++){
+        data->previousProcessMem = data->currentProcessMem;
+        if(strlen(memoryMap[x]) < 1){
+            data->currentProcessMem = FALSE;
+        }else{
+            data->currentProcessMem = TRUE;
+        }//end if
+        if(data->currentProcessMem != data->previousProcessMem && data->currentProcessMem == FALSE){
+            data->numberOfHoles = data->numberOfHoles + 1; 
+        }//end if
+    }//end for
+
+    //at the start of memory block, check for the hole
+    if(strlen(memoryMap[0]) < 1 && data->numberOfHoles != 0){
+        data->numberOfHoles = data->numberOfHoles + 1;
+    }//end if
+
+    //print
+    printf("pid %s loaded, #processes = %d, #holes = %d, %%memusage = %lf, cumulative %%memusage = %lf\n",
+        process->name, data->numberOfProcesses, data->numberOfHoles, (double)(data->usagePercentage), (double)data->sumOfMemUsage/(double)data->numOfSums);
+}//end func
+
+void firstFit(List* queue){
+    //create mem
+    char** memoryMap = calloc(getLength(*queue), sizeof(memoryMap));
+    for(int x=0; getLength(*queue); x++){
+        memoryMap[x] = calloc(256 ,sizeof(char));
+        strcpy(memoryMap[x], "\0");
+    }//end for
+
+    //get process
+    List* addedQueue = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    Process* process = getFromBack(*queue);
+    deleteDataFromList(queue, process);
+
+    //go through the process
+    while(process){
+        int memSpace = 0;
+        //go through the memoryMap
+        for(int x=0; x<MEM_SIZE; x++){
+            if(memoryMap[x] != 0){
+                memSpace = 0;
+            }else{
+                memSpace = memSpace + 1;
+            }//end if
+            if(process->size == memSpace){
+
+                //insert process to memoryMap
+                int insertAtIndex = x-memSpace+1;
+                int endLoop = insertAtIndex + process->size;
+                for(int y=insertAtIndex;y<endLoop;y++){
+                    strcpy(memoryMap[y], process->name);
+                }//end for
+
+                //print
+                printMem(process, memoryMap, queue);
+
+            }//end ifr
+        }//end for
+    }//end while
+}//end func
+
 int main(int argc, char** argv){
     //error check the num of argument
     debug("argc = %d\n", argc);
@@ -133,26 +262,26 @@ int main(int argc, char** argv){
         char** token = split(hole->arrayOfData[x], " ");
         debug("debug: name = (%s), size = (%s)\n", token[0], token[1]);
         strcpy(tempName, token[0]);
-        strcpy(tempSize, token[1]);
+        tempSize = atoi(token[1]);
         
         //make sure its within the size
-        if(size > 0 && MEM_SIZE >= size){
+        if(tempSize > 0 && MEM_SIZE >= tempSize){
             //process 1
             Process* process1 = newProcess();
-            strcpy(process1->name, name);
-            process1->size = size; 
+            strcpy(process1->name, tempName);
+            process1->size = tempSize; 
             //process 1
             Process* process2 = newProcess();
-            strcpy(process2->name, name);
-            process2->size = size; 
+            strcpy(process2->name, tempName);
+            process2->size = tempSize; 
             //process 1
             Process* process3 = newProcess();
-            strcpy(process3->name, name);
-            process3->size = size; 
+            strcpy(process3->name, tempName);
+            process3->size = tempSize; 
             //process 1
             Process* process4 = newProcess();
-            strcpy(process4->name, name);
-            process4->size = size; 
+            strcpy(process4->name, tempName);
+            process4->size = tempSize; 
             
             //insert the process to each queue
             insertBack(queue1, process1);
@@ -160,7 +289,7 @@ int main(int argc, char** argv){
             insertBack(queue3, process3);
             insertBack(queue4, process4);
         }else{
-            printf("Process ID %s, could not be added due to the size of memory\n", name);
+            printf("Process ID %s, could not be added due to the size of memory\n", tempName);
         }//end if
     }//end for
     debug("\n");
