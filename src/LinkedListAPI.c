@@ -31,7 +31,7 @@ List initializeList(char* (*printFunction)(void* toBePrinted),void (*deleteFunct
 
 List* initializeListPointer(char* (*printFunction)(void* toBePrinted),void (*deleteFunction)(void* toBeDeleted),int (*compareFunction)(const void* first,const void* second)){
     //init all the instance vars of the list
-    List* newList;
+    List* newList = malloc(sizeof(List));
     newList->head = NULL;
     newList->tail = NULL;
     newList->length = 0;

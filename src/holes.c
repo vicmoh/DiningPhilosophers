@@ -83,6 +83,23 @@ void loadData(Hole* hole){
     fclose(filePointer);
 }//end func
 
+char** split(char* stringToBeSplit, const char* delimiter){
+    //dec vars
+    char** arrayOfToken = calloc(2, sizeof(arrayOfToken));
+    int x = 0;
+    char* token = strtok(stringToBeSplit, delimiter);
+    //create a split func that will used to parse the data
+    while(token != NULL){
+        arrayOfToken[x] = setString(token);
+        // debug("arrayOfToken %d = %s\n", x, arrayOfToken[x]);
+        x++;
+        arrayOfToken[x] = NULL;
+        arrayOfToken = realloc(arrayOfToken, sizeof(arrayOfToken)*x+1);
+        token = strtok(NULL, delimiter);
+    }//end while
+    return arrayOfToken;
+}//end func
+
 int main(int argc, char** argv){
     //error check the num of argument
     debug("argc = %d\n", argc);
@@ -110,13 +127,9 @@ int main(int argc, char** argv){
     List* q4 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
 
     for(int x=0; x<hole->numOfArray; x++){
-        char name[256] = {"\0"};
-        int size = 0;
-        scanf(hole->arrayOfData[x], "%s %d", name, size);
-        debug("name = %s, size = %d\n", name, size);
+        char** token = split(hole->arrayOfData[x], " ");
+        debug("name = %s, size = %s\n", token[0], token[1]);
     }//end for
-    
-    
 
     return 0;
 }//end main
