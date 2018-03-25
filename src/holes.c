@@ -14,7 +14,7 @@
 #define FALSE 0
 #define NUMBER_RANGE( var ) (var >= 48 && var <= 57)
 #define debug if(TRUE)printf
-#define memSize 128
+#define MEM_SIZE 128
 
 typedef struct{
     char** arrayOfData;
@@ -121,14 +121,47 @@ int main(int argc, char** argv){
     debug("\n");
 
     //create 4 queues
-    List* q1 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    List* q2 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    List* q3 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    List* q4 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* queue1 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* queue2 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* queue3 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* queue4 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
 
     for(int x=0; x<hole->numOfArray; x++){
+        //split the data and dec vars
+        char tempName[256] = {"\0"};
+        int tempSize = 0;
         char** token = split(hole->arrayOfData[x], " ");
         debug("debug: name = (%s), size = (%s)\n", token[0], token[1]);
+        strcpy(tempName, token[0]);
+        strcpy(tempSize, token[1]);
+        
+        //make sure its within the size
+        if(size > 0 && MEM_SIZE >= size){
+            //process 1
+            Process* process1 = newProcess();
+            strcpy(process1->name, name);
+            process1->size = size; 
+            //process 1
+            Process* process2 = newProcess();
+            strcpy(process2->name, name);
+            process2->size = size; 
+            //process 1
+            Process* process3 = newProcess();
+            strcpy(process3->name, name);
+            process3->size = size; 
+            //process 1
+            Process* process4 = newProcess();
+            strcpy(process4->name, name);
+            process4->size = size; 
+            
+            //insert the process to each queue
+            insertBack(queue1, process1);
+            insertBack(queue2, process2);
+            insertBack(queue3, process3);
+            insertBack(queue4, process4);
+        }else{
+            printf("Process ID %s, could not be added due to the size of memory\n", name);
+        }//end if
     }//end for
     debug("\n");
 
