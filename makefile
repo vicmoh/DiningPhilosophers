@@ -16,16 +16,13 @@ dine:
 	$(CC)  $(CFLAGS) src/dine.c -o bin/dine -pthread
 
 holes:
-	$(CC)  $(CFLAGS) src/holes.c -o bin/holes
+	$(CC)  $(CFLAGS) src/holes.c -o src/LinkedListAPI.c bin/holes
 
 runDine:
 	./bin/dine 3 2
 
 runHoles:
 	./bin/holes ./assets/data.txt
-
-valgrind:
-	valgrind -v --leak-check=full ./bin/run
 
 clean:
 	rm bin/*
