@@ -22,14 +22,6 @@
 typedef struct{
     //firt fit
     int inserted;
-    //
-    int numP;
-    int numH;
-    double cummulativeMem;
-    int totalPID;
-    double avgP;
-    double avgH;
-    //
     int availableMem;
     bool flag;
 }FF;
@@ -38,12 +30,6 @@ typedef struct{
     int inserted;
     int holeIndex; 
     int found;
-    int numP; 
-    int numH;
-    double cumulativeMem; 
-    double totalPID;
-    double avgP; 
-    double avgH;
     int flag;
     int availableMem;
     int smallestSpace; 
@@ -61,8 +47,13 @@ typedef struct{
     char** array;
     int arraySize;
     char* fileName;
-    //main func
-
+    //main vars to be printed
+    int numP;
+    int numH;
+    double cummulativeMem;
+    int totalPID;
+    double avgP;
+    double avgH;
     //ff
     FF* ff;
     BF* bf;
@@ -72,14 +63,6 @@ FF* newFF(){
     FF* new = malloc(sizeof(FF));
     //first fit
     new->inserted = 1;
-    //
-    new->numP = 0;
-    new->numH = 0;
-    new->cummulativeMem = 0.0 ;
-    new->totalPID = 0.0;
-    new->avgP = 0.0;
-    new->avgH = 0.0;
-    //
     new->availableMem = 0;
     new->flag = true;
     return new;
@@ -90,12 +73,6 @@ BF* newBF(){
     new->inserted = 1;
     new->holeIndex = 0; 
     new->found = 0;
-    new->numP = 0; 
-    new->numH = 0;
-    new->cumulativeMem = 0; 
-    new->totalPID = 0.0;
-    new->avgP = 0.0; 
-    new->avgH = 0.0;
     new->flag = true;//need fix
     new->availableMem = 0;
     new->smallestSpace = MEM_SIZE; 
@@ -117,6 +94,14 @@ Hole* newHole(){
     new->array = NULL;
     new->arraySize = 0;
     new->fileName = NULL;
+    //
+    new->numP = 0;
+    new->numH = 0;
+    new->cummulativeMem = 0.0 ;
+    new->totalPID = 0.0;
+    new->avgP = 0.0;
+    new->avgH = 0.0;
+    //
     new->ff = newFF();
     new->bf = newBF();
     return new;
@@ -222,12 +207,12 @@ int compareProcesses(const void* a, const void* b){
 
 void printStat(Hole* hole, char id, double memUsagePercentage){
     printf("%c PID Loaded, #processes = %d, #holes %d, %%memusage = %.4lf, cumulative %%mem = %.4lf\n", 
-        id, hole->ff->numP, hole->ff->numH, memUsagePercentage, hole->ff->cummulativeMem);
+        id, hole->numP, hole->numH, memUsagePercentage, hole->cummulativeMem);
 }//end func
 
 void printFinal(Hole* hole){
-    printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cumulativeMem: %.4lf\n", 
-        hole->ff->totalPID, hole->ff->avgP, hole->ff->avgH, hole->ff->cummulativeMem);
+    printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cummulativeMem: %.4lf\n", 
+        hole->totalPID, hole->avgP, hole->avgH, hole->cummulativeMem);
 }//end func
 
 void initMem(char* mem, int size){
@@ -236,16 +221,17 @@ void initMem(char* mem, int size){
     }//end for
 }//end func
 
+void resetHole(Hole* hole){
+    hole->numP = 0;
+    hole->numH = 0;
+}//end func
+
 void resetFF(FF* ff){
-    ff->numP = 0;
-    ff->numH = 0;
     ff->availableMem = 0;
     ff->flag = true;
 }//end func
 
 void resetBF(BF* bf){
-    bf->numP = 0;
-    bf->numH = 0;
     bf->availableMem = 0;
     bf->flag = FALSE;
     bf->found = 0;
@@ -255,12 +241,12 @@ void resetBF(BF* bf){
 void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     //dec vars
     int numOfProcess = getLength(*memQ);
-    hole->ff->numP = numOfProcess;
+    hole->numP = numOfProcess;
     int used = 0;
     //loop till mem size
     for(int x=0; x<MEM_SIZE-1; x++){
         if(mem[x+1] != '0' && mem[x] == '0'){
-            hole->ff->numH = hole->ff->numH + 1;
+            hole->numH = hole->numH + 1;
         }//end if
         
         if(mem[x] != '0'){
@@ -269,7 +255,7 @@ void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     }//end for
 
     if(mem[MEM_SIZE-1] == '0'){
-        hole->ff->numH = hole->ff->numH + 1;
+        hole->numH = hole->numH + 1;
     }else if(mem[MEM_SIZE-1] != '0'){
         used = used + 1;
     }//end if
@@ -277,15 +263,15 @@ void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     //calc the process
     double memUsage = (double)(used)/MEM_SIZE;
     double memUsagePercentage = memUsage * 100;
-    double memID = hole->ff->cummulativeMem * hole->ff->totalPID;
-    hole->ff->cummulativeMem = (memID + memUsagePercentage) / (hole->ff->totalPID + 1);
-    hole->ff->totalPID = hole->ff->totalPID + 1;
+    double memID = hole->cummulativeMem * hole->totalPID;
+    hole->cummulativeMem = (memID + memUsagePercentage) / (hole->totalPID + 1);
+    hole->totalPID = hole->totalPID + 1;
     printStat(hole, id, memUsagePercentage);
 }//end func
 
-void calcAverage(double avgP, double avgH, int numP, int numH, int totalPID){
-    avgP = ((avgP*(totalPID-1))+numP)/totalPID;
-    avgH = ((avgH*(totalPID-1))+numH)/totalPID;
+void calcAverage(Hole* hole){
+    hole->avgP = ((hole->avgP*(hole->totalPID-1))+hole->numP)/hole->totalPID;
+    hole->avgH = ((hole->avgH*(hole->totalPID-1))+hole->numH)/hole->totalPID;
 }//end func
 
 /********************************************************
@@ -302,6 +288,7 @@ void firstFit(Hole* hole, List* queue){
     
     //loop until length is 0
     while(getLength(*queue) != 0){
+        resetHole(hole);
         resetFF(hole->ff);
         if(hole->ff->inserted == TRUE){
             p1 = pop(queue);
@@ -329,8 +316,7 @@ void firstFit(Hole* hole, List* queue){
                 hole->ff->flag = false;
                 insertBack(memQ, p1);
                 printMem(memQ, mem, hole, p1->ID);
-                hole->ff->avgP = ((hole->ff->avgP*(hole->ff->totalPID-1))+hole->ff->numP)/hole->ff->totalPID;
-                hole->ff->avgH = ((hole->ff->avgH*(hole->ff->totalPID-1))+hole->ff->numH)/hole->ff->totalPID;
+                calcAverage(hole);
                 break;
             }//end if
         }//end for
@@ -375,6 +361,7 @@ void bestFit(Hole* hole, List* queue){
     Process* p2 = NULL;
     //loop til there is nothing in queue
     while(getLength(*queue) != 0){
+        resetHole(hole);
         resetBF(hole->bf);
         if(hole->bf->inserted == TRUE){
             p1 = pop(queue);
@@ -442,9 +429,13 @@ void bestFit(Hole* hole, List* queue){
             hole->bf->inserted = TRUE;
             hole->bf->flag = TRUE;
             insertBack(memQ, p1);
-            calcAverage(hole->bf->avgP, hole->bf->avgH, hole->bf->numP, hole->bf->numH, hole->bf->totalPID);
+            printMem(memQ, mem, hole, p1->ID);
+            calcAverage(hole);
         }//end if
     }//end while
+
+    printFinal(hole);
+    clearList(memQ);
 }//end func
 
 /********************************************************
