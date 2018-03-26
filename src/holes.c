@@ -47,6 +47,13 @@ typedef struct{
 }WF;
 
 typedef struct{
+    int inserted;
+    int availableMem;
+    bool flag;
+    int lastPosition;
+}NF;
+
+typedef struct{
     char ID;
     int memoryUsage;
     int memorySwap;
@@ -68,6 +75,7 @@ typedef struct{
     FF* ff;
     BF* bf;
     WF* wf;
+    NF* nf;
 }Hole;
 
 FF* newFF(){
@@ -103,6 +111,16 @@ WF* newWF(){
     return new;
 }//end constructor
 
+NF* newNF(){
+    NF* new = malloc(sizeof(NF));
+    //next fit
+    new->inserted = 1;
+    new->availableMem = 0;
+    new->flag = FALSE;
+    new->lastPosition = 0;
+    return new;
+}//end constructor
+
 Process* newProcess(){
     Process* new = malloc(sizeof(Process));
     new->ID = 0;
@@ -128,6 +146,7 @@ Hole* newHole(){
     new->ff = newFF();
     new->bf = newBF();
     new->wf = newWF();
+    new->nf = newNF();
     return new;
 }//end constructor
 
@@ -280,6 +299,12 @@ void resetWF(WF* wf){
     wf->holeIndex = 0;
 }//end func
 
+void resetNF(NF* nf){
+    nf->flag = false;
+    nf->lastPosition = 0;
+    nf->availableMem = 0;
+}//end func
+
 void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     //dec vars
     int numOfProcess = getLength(*memQ);
@@ -309,6 +334,10 @@ void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     hole->cummulativeMem = (memID + memUsagePercentage) / (hole->totalPID + 1);
     hole->totalPID = hole->totalPID + 1;
     printStat(hole, id, memUsagePercentage);
+}//end func
+
+void count(int* num){
+    *num = *num + 1;
 }//end func
 
 void calcAverage(Hole* hole){
@@ -346,7 +375,7 @@ void firstFit(Hole* hole, List* queue){
             if(mem[x] != '0'){
                 hole->ff->availableMem = 0;
             }else{
-                hole->ff->availableMem = hole->ff->availableMem + 1;
+                count(&hole->ff->availableMem);
             }//end if
 
             //insert processes
@@ -383,7 +412,7 @@ void firstFit(Hole* hole, List* queue){
             }//end for
             
             //count swap mem
-            p2->memorySwap = p2->memorySwap + 1;
+            count(&p2->memorySwap);
             
             if(p2->memorySwap < 3){
                 insertBack(queue, p2);
@@ -429,9 +458,9 @@ void bestFit(Hole* hole, List* queue){
             if(memIsAvail == TRUE && mem[x] == '0'){
                 if(DEBUG_HELPER)printf("Index: %d\n", x);
                 hole->bf->holeIndex = x;
-                hole->bf->availableMem = hole->bf->availableMem + 1;
+                count(&hole->bf->availableMem);
             }else if(memIsAvail == FALSE && mem[x] == '0'){
-                hole->bf->availableMem = hole->bf->availableMem + 1;
+                count(&hole->bf->availableMem);
             }else{
                 
                 //check mem is out of bound
@@ -489,7 +518,7 @@ void bestFit(Hole* hole, List* queue){
                     mem[x] = '0';
                 }//end if
             }//end for
-            p2->memorySwap = p2->memorySwap + 1;
+            count(&p2->memorySwap);
             if(p2->memorySwap < 3){
                 insertBack(queue, p2);
             }//end if
@@ -544,9 +573,9 @@ void worstFit(Hole* hole, List* queue){
             if(memIsAvail == TRUE && mem[x] == '0'){
                 if(DEBUG_HELPER)printf("Index: %d\n", x);
                 hole->wf->holeIndex = x;
-                hole->wf->availableMem = hole->wf->availableMem + 1;
+                count(&hole->wf->availableMem);
             }else if(memIsAvail == FALSE && mem[x] == '0'){
-                hole->wf->availableMem = hole->wf->availableMem + 1;
+                count(&hole->wf->availableMem);
             }else{
                 
                 //check mem is out of bound
@@ -604,7 +633,7 @@ void worstFit(Hole* hole, List* queue){
                     mem[x] = '0';
                 }//end if
             }//end for
-            p2->memorySwap = p2->memorySwap + 1;
+            count(&p2->memorySwap);
             if(p2->memorySwap < 3){
                 insertBack(queue, p2);
             }//end if
@@ -625,6 +654,83 @@ void worstFit(Hole* hole, List* queue){
     clearList(memQ);
     resetHole(hole);
     resetWF(hole->wf);
+}//end func
+
+void nextFit(Hole* hole, List* queue){
+    //create mem
+    char mem[MEM_SIZE];
+    initMem(mem, MEM_SIZE);
+    Process* p1 = NULL;
+    Process* p2 = NULL;
+    List* memQ = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+    resetHole(hole);
+    
+    //loop until length is 0
+    while(getLength(*queue) != 0){
+        resetNumHole(hole);
+        resetNF(hole->nf);
+        if(hole->nf->inserted == TRUE){
+            p1 = pop(queue);
+            if(DEBUG_HELPER)printf("queue length = %d\n", getLength(*queue));
+        }//end if
+
+        //dec spacec 
+        int space = p1->memoryUsage;
+
+        for(int x=hole->nf->lastPosition; x<MEM_SIZE; x++){
+            //count avilable mem
+            if(mem[x] != '0'){
+                hole->nf->availableMem = 0;
+            }else{
+                count(&hole->nf->availableMem);
+            }//end if
+
+            //insert processes
+            if(hole->nf->availableMem >= space){
+                int end = x-space;
+                for(int y=x; y>end; y--){
+                    mem[y] = p1->ID;
+                }//end for
+                hole->nf->inserted = TRUE;
+                hole->nf->flag = TRUE;
+                insertBack(memQ, p1);
+                printMem(memQ, mem, hole, p1->ID);
+                calcAverage(hole);
+                break;
+            }//end if
+        }//end for
+
+        //for no space
+        if(hole->nf->flag == FALSE){
+            hole->nf->inserted = FALSE;
+            p2 = pop(memQ);
+            if(DEBUG_HELPER)printf("memQ length = %d\n", getLength(*memQ));
+            //if(DEBUG_HELPER)printf
+            if(p2 == NULL){
+                if(DEBUG_HELPER)printf("p2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                break;
+            }//end
+            //look through the mem
+            for(int x=0; x<MEM_SIZE; x++){
+                char id = p2->ID;
+                if(mem[x] == id){
+                    mem[x] = '0';
+                }//end if
+            }//end for
+            
+            //count swap mem
+            count(&p2->memorySwap);
+            
+            if(p2->memorySwap < 3){
+                insertBack(queue, p2);
+            }//end if
+        }//end if
+    }//end while
+
+    printFinal(hole);
+    clearList(memQ);
+    resetHole(hole);
+    resetNF(hole->nf);
 }//end func
 
 /********************************************************
@@ -692,6 +798,10 @@ int main(int argc, char** argv){
 
     printf("----------------------------<<<((( WORST FIT )))>>>----------------------------\n");
     worstFit(hole, queue3);
+    printf("-------------------------------------------------------------------------------\n");
+
+    printf("----------------------------<<<((( NEXT FIT )))>>>----------------------------\n");
+    nextFit(hole, queue4);
     printf("-------------------------------------------------------------------------------\n");
 
     //free the hole
