@@ -37,6 +37,16 @@ typedef struct{
 }BF;
 
 typedef struct{
+    int inserted;
+    int holeIndex; 
+    int found;
+    int flag;
+    int availableMem;
+    int largestSpace; 
+    int largestIndex;
+}WF;
+
+typedef struct{
     char ID;
     int memoryUsage;
     int memorySwap;
@@ -57,17 +67,8 @@ typedef struct{
     //ff
     FF* ff;
     BF* bf;
+    WF* wf;
 }Hole;
-
-typedef struct{
-    //main vars to be printed
-    int numP;
-    int numH;
-    double cummulativeMem;
-    int totalPID;
-    double avgP;
-    double avgH;
-}Stats;
 
 FF* newFF(){
     FF* new = malloc(sizeof(FF));
@@ -87,6 +88,18 @@ BF* newBF(){
     new->availableMem = 0;
     new->smallestSpace = MEM_SIZE; 
     new->smallestIndex = 0;
+    return new;
+}//end constructor
+
+WF* newWF(){
+    WF* new = malloc(sizeof(WF));
+    new->inserted = TRUE;
+    new->holeIndex = 0; 
+    new->found = FALSE;
+    new->flag = FALSE;//need fix
+    new->availableMem = 0;
+    new->largestSpace = 0; 
+    new->largestIndex = 0;
     return new;
 }//end constructor
 
@@ -114,19 +127,9 @@ Hole* newHole(){
     //
     new->ff = newFF();
     new->bf = newBF();
+    new->wf = newWF();
     return new;
 }//end constructor
-
-Stats* newStats(){
-    Stats* new = malloc(sizeof(Stats));
-    new->numP = 0;
-    new->numH = 0;
-    new->cummulativeMem = 0.0 ;
-    new->totalPID = 0.0;
-    new->avgP = 0.0;
-    new->avgH = 0.0;
-    return new;
-}
 
 /********************************************************
  * helper functions, some of them are from my old course
@@ -267,6 +270,14 @@ void resetBF(BF* bf){
     bf->found = FALSE;
     bf->smallestSpace = MEM_SIZE;
     bf->holeIndex = 0;
+}//end func
+
+void resetWF(WF* wf){
+    wf->availableMem = 0;
+    wf->flag = FALSE;
+    wf->found = FALSE;
+    wf->largestSpace = 0;
+    wf->holeIndex = 0;
 }//end func
 
 void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
@@ -422,7 +433,6 @@ void bestFit(Hole* hole, List* queue){
             }else if(memIsAvail == FALSE && mem[x] == '0'){
                 hole->bf->availableMem = hole->bf->availableMem + 1;
             }else{
-                hole->bf->found = TRUE;
                 
                 //check mem is out of bound
                 int isLessThanSmallestPlace = FALSE;
@@ -502,6 +512,121 @@ void bestFit(Hole* hole, List* queue){
     resetBF(hole->bf);
 }//end func
 
+void worstFit(Hole* hole, List* queue){
+    //create mem and dec vars
+    char mem[MEM_SIZE];
+    initMem(mem, MEM_SIZE);
+    List* memQ = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+    resetHole(hole);
+    Process* p1 = NULL;
+    Process* p2 = NULL;
+    //loop til there is nothing in queue
+    if(DEBUG_HELPER)printf("best fit getLength queue = %d\n", getLength(*queue));
+    while(getLength(*queue) != 0){
+        resetNumHole(hole);
+        resetWF(hole->wf);
+        if(hole->wf->inserted == TRUE){
+            p1 = pop(queue);
+        }//end if
+        
+        //set the amount space
+        int space = p1->memoryUsage;
+        
+        //loop mem
+        for(int x=0; x<MEM_SIZE; x++){
+
+            //check case if mem is avail
+            int memIsAvail = FALSE;
+            if(hole->wf->availableMem == 0){
+                memIsAvail = TRUE;
+            }//end if
+
+            if(memIsAvail == TRUE && mem[x] == '0'){
+                if(DEBUG_HELPER)printf("Index: %d\n", x);
+                hole->wf->holeIndex = x;
+                hole->wf->availableMem = hole->wf->availableMem + 1;
+            }else if(memIsAvail == FALSE && mem[x] == '0'){
+                hole->wf->availableMem = hole->wf->availableMem + 1;
+            }else{
+                
+                //check mem is out of bound
+                int isLessThanSmallestPlace = FALSE;
+                int isGreaterThanSpace = FALSE;
+                if(hole->wf->availableMem > hole->wf->largestSpace){
+                    isLessThanSmallestPlace = TRUE;
+                    if(hole->wf->availableMem >= space){
+                        isGreaterThanSpace = TRUE;
+                    }//end if
+                }//end if
+                //search for the smallest hole
+                if(isLessThanSmallestPlace == TRUE && isGreaterThanSpace == TRUE){
+                    if(DEBUG_HELPER)printf("availableMem: %d, index: %d\n", hole->wf->availableMem, hole->wf->holeIndex);
+                    hole->wf->largestIndex = hole->wf->holeIndex;
+                    hole->wf->largestSpace = hole->wf->availableMem;
+                    hole->wf->flag = TRUE;
+                }//end if
+
+                //set available mem to 0
+                hole->wf->availableMem = 0;
+            }//end
+
+            //check mem is out of bound
+            int isLessThanSmallestPlace2 = FALSE;
+            int isGreaterThanSpace2 = FALSE;
+            if(hole->wf->availableMem > hole->wf->largestSpace){
+                isLessThanSmallestPlace2 = TRUE;
+                if(hole->wf->availableMem >= space){
+                    isGreaterThanSpace2 = TRUE;
+                }//end if
+            }//end if
+            if(isLessThanSmallestPlace2 == TRUE && isGreaterThanSpace2 == TRUE && x == MEM_SIZE-1){
+                if(DEBUG_HELPER)printf("2 availableMem: %d, index: %d\n", hole->wf->availableMem, hole->wf->holeIndex);
+                if(DEBUG_HELPER)printf("flag on\n");    
+                hole->wf->largestIndex = hole->wf->holeIndex;
+                hole->wf->largestSpace = hole->wf->availableMem;
+                hole->wf->flag = TRUE;
+                hole->wf->availableMem = 0;
+            }//end if
+        }//end for
+
+        if(hole->wf->flag == FALSE){
+            hole->wf->inserted = FALSE;
+            p2 = pop(memQ);
+            //if(DEBUG_HELPER)printf("Removed: %c\n", p2->ID);
+            //debug
+            if(p2 == NULL){
+                if(DEBUG_HELPER)printf("p2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                break;
+            }//end
+            for(int x=0; x<MEM_SIZE; x++){
+                char id = p2->ID;
+                if(mem[x] == id){
+                    mem[x] = '0';
+                }//end if
+            }//end for
+            p2->memorySwap = p2->memorySwap + 1;
+            if(p2->memorySwap < 3){
+                insertBack(queue, p2);
+            }//end if
+        }else{
+            int end = hole->wf->largestIndex+space;
+            for(int x=hole->wf->largestIndex; x<end; x++){
+                mem[x] = p1->ID;
+            }//end for
+            hole->wf->inserted = TRUE;
+            hole->wf->flag = TRUE;
+            insertBack(memQ, p1);
+            printMem(memQ, mem, hole, p1->ID);
+            calcAverage(hole);
+        }//end if
+    }//end while
+
+    printFinal(hole);
+    clearList(memQ);
+    resetHole(hole);
+    resetWF(hole->wf);
+}//end func
+
 /********************************************************
  * main
  ********************************************************/
@@ -563,6 +688,10 @@ int main(int argc, char** argv){
 
     printf("----------------------------<<<((( BEST FIT )))>>>----------------------------\n");
     bestFit(hole, queue2);
+    printf("-------------------------------------------------------------------------------\n");
+
+    printf("----------------------------<<<((( WORST FIT )))>>>----------------------------\n");
+    worstFit(hole, queue3);
     printf("-------------------------------------------------------------------------------\n");
 
     //free the hole
