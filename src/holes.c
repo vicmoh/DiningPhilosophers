@@ -14,6 +14,7 @@
 #define FALSE 0
 #define NUMBER_RANGE( var ) (var >= 48 && var <= 57)
 #define debug if(TRUE)printf
+#define d debug("CHECK\n");
 #define MEM_SIZE 128
 
 typedef struct{
@@ -25,6 +26,7 @@ typedef struct{
 typedef struct{
     char name[256];
     int size;
+    int numOfSwaps;
     int isInserted;
     int insertPosition;
 }Process;
@@ -52,7 +54,8 @@ Process* newProcess(){
     Process* new = malloc(sizeof(Process));
     new->name[0] = '\0';
     new->size = 0;
-    new->isInserted = 0;
+    new->numOfSwaps = 0;
+    new->isInserted = FALSE;
     new->insertPosition = 0;
     return new;
 }//end constructor
@@ -75,7 +78,7 @@ Display* newDisplay(List* queue){
 }//end constructor
 
 char* setString(char* string){
-    char* newString = calloc(strlen(string)+99, sizeof(char));
+    char* newString = calloc(strlen(string)+9, sizeof(char));
     strcpy(newString, string);
     return newString;
 }//end func
@@ -89,19 +92,18 @@ void loadData(Hole* hole){
     }//end if
 
     //dec vars
-    char line[256] = {"\0"};
-    int sizeOfArray = 1;
-    char** arrayOfString = calloc(sizeOfArray, sizeof(char));
+    char line[256];
+    char** arrayOfString = malloc(sizeof(arrayOfString)*1);
     int x = 0;
 
     //read each line in the file
     printf("Loading data...\n");
     while(fgets(line, sizeof(line), filePointer) != NULL){
-        line[strcspn(line, "\n\r")] = '\0';
+        line[strcspn(line, "\r\n")] = '\0';
         arrayOfString[x] = setString(line);
         debug("arrayOfString %d = %s\n", x, arrayOfString[x]);
         x++;
-        arrayOfString = realloc(arrayOfString, sizeof(arrayOfString)*x+1);
+        arrayOfString = realloc(arrayOfString, sizeof(arrayOfString)*(x+1));
     }//end while
     printf("\nData loaded\n");
     debug("numOfArray = %d\n", x);
@@ -114,19 +116,31 @@ void loadData(Hole* hole){
 
 char** split(char* stringToBeSplit, const char* delimiter){
     //dec vars
-    char** arrayOfToken = calloc(2, sizeof(arrayOfToken));
+    char** arrayOfToken = malloc(sizeof(arrayOfToken)*2);
     int x = 0;
     char* token = strtok(stringToBeSplit, delimiter);
     //create a split func that will used to parse the data
     while(token != NULL){
         arrayOfToken[x] = setString(token);
-        // debug("arrayOfToken %d = %s\n", x, arrayOfToken[x]);
+        debug("arrayOfToken %d = %s\n", x, arrayOfToken[x]);
         x++;
         arrayOfToken[x] = NULL;
-        arrayOfToken = realloc(arrayOfToken, sizeof(arrayOfToken)*x+1);
+        arrayOfToken = realloc(arrayOfToken, sizeof(arrayOfToken)*(x+2));
         token = strtok(NULL, delimiter);
     }//end while
     return arrayOfToken;
+}//end func
+
+void freeToken(char** token){
+    for(int x=0; token[x] != NULL; x++){
+        free(token[x]);
+    }//end for
+    free(token);
+}//end func
+
+void deleteProcess(void* toBeDeleted){
+    Process* object = (Process*)toBeDeleted;
+    free(object);
 }//end func
 
 void printMem(Process* process, char** memoryMap, List* queue){
@@ -145,9 +159,11 @@ void printMem(Process* process, char** memoryMap, List* queue){
             }//end if
         }//end for
 
-        if(strlen(memoryMap[x]) > 0){
+    if(strcmp(memoryMap[x], "0") != 0){
             data->numOfMemUsed = data->numOfMemUsed + 1;
         }//end if
+
+        free(currentMem);
     }//end for
 
     //calc the usage percentage
@@ -164,12 +180,10 @@ void printMem(Process* process, char** memoryMap, List* queue){
     }//end for
 
     //find the number if holes
-    if(strlen(memoryMap[0]) < 1){
-        data->currentProcessMem = TRUE;
-    }//end if
+    data->currentProcessMem = TRUE;
     for(int x=1; x<MEM_SIZE; x++){
         data->previousProcessMem = data->currentProcessMem;
-        if(strlen(memoryMap[x]) < 1){
+        if(strcmp(memoryMap[x], "0") == 0){
             data->currentProcessMem = FALSE;
         }else{
             data->currentProcessMem = TRUE;
@@ -180,34 +194,72 @@ void printMem(Process* process, char** memoryMap, List* queue){
     }//end for
 
     //at the start of memory block, check for the hole
-    if(strlen(memoryMap[0]) < 1 && data->numberOfHoles != 0){
+    if(data->numberOfHoles != 0){
         data->numberOfHoles = data->numberOfHoles + 1;
     }//end if
 
     //print
     printf("pid %s loaded, #processes = %d, #holes = %d, %%memusage = %lf, cumulative %%memusage = %lf\n",
-        process->name, data->numberOfProcesses, data->numberOfHoles, (double)(data->usagePercentage), (double)data->sumOfMemUsage/(double)data->numOfSums);
+        process->name, data->numberOfProcesses, data->numberOfHoles-1, (double)(data->usagePercentage), (double)data->sumOfMemUsage/(double)data->numOfSums);
+    free(data->proccessMap);
+    free(data);
+}//end func
+
+Process* copyProcess(Process* toBeCopied){
+    Process* new = malloc(sizeof(Process));
+    strcpy(new->name, toBeCopied->name);
+    new->size = toBeCopied->size;
+    new->numOfSwaps = toBeCopied->numOfSwaps;
+    new->isInserted = toBeCopied->isInserted;
+    new->insertPosition = toBeCopied->insertPosition;
+    return new;
+}//end func
+
+void removeProcess(char** memoryMap, List* addedQueue, List* queue){
+    Process* process = getFromFront(*addedQueue);
+    deleteDataFromList(addedQueue, process);
+    if(!process){
+        return;
+    }//end if
+
+    process->numOfSwaps = process->numOfSwaps + 1;
+    if(process->numOfSwaps != 3){
+        Process* copiedProcess = copyProcess(process);
+        insertBack(queue, copiedProcess);
+    }//end if
+
+    for(int x=0;x<MEM_SIZE;x++){
+        if(strcmp(memoryMap[x], process->name) == 0){
+            strcpy(memoryMap[x], "0");
+        }//end if
+    }//end for
 }//end func
 
 void firstFit(List* queue){
     //create mem
-    char** memoryMap = calloc(getLength(*queue), sizeof(memoryMap));
-    for(int x=0; getLength(*queue); x++){
+    debug("debug create process\n");
+    char** memoryMap = calloc(MEM_SIZE, sizeof(memoryMap));
+    debug("getLength = %d\n", getLength(*queue));
+    for(int x=0; x<MEM_SIZE; x++){
         memoryMap[x] = calloc(256 ,sizeof(char));
-        strcpy(memoryMap[x], "\0");
+        strcpy(memoryMap[x], "0");
     }//end for
+    debug("debug create process completed\n");
 
     //get process
-    List* addedQueue = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    Process* process = getFromBack(*queue);
+    List* addedQueue = initializeListPointer(dummyPrint, deleteProcess, dummyCompare);
+    Process* process = getFromFront(*queue);
     deleteDataFromList(queue, process);
+    debug("debug get process\n");
 
     //go through the process
     while(process){
         int memSpace = 0;
+        int x = 0;
         //go through the memoryMap
-        for(int x=0; x<MEM_SIZE; x++){
-            if(memoryMap[x] != 0){
+        for(x=0; x<MEM_SIZE; x++){
+            //debug("memoryMap = %s\n", memoryMap[x]);
+            if(strcmp(memoryMap[x], "0") != 0){
                 memSpace = 0;
             }else{
                 memSpace = memSpace + 1;
@@ -223,9 +275,20 @@ void firstFit(List* queue){
 
                 //print
                 printMem(process, memoryMap, queue);
-
-            }//end ifr
+                
+                //insert to to recenly added queue
+                Process* copiedProcess = copyProcess(process);
+                insertBack(addedQueue, copiedProcess);
+                break;
+            }//end if
         }//end for
+
+        if(x == MEM_SIZE){
+            removeProcess(memoryMap, addedQueue, queue);
+        }else{
+            process = getFromFront(*queue);
+            deleteDataFromList(queue, process);
+        }//end if
     }//end while
 }//end func
 
@@ -250,10 +313,10 @@ int main(int argc, char** argv){
     debug("\n");
 
     //create 4 queues
-    List* queue1 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    List* queue2 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    List* queue3 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
-    List* queue4 = initializeListPointer(dummyPrint, dummyDelete, dummyCompare);
+    List* queue1 = initializeListPointer(dummyPrint, deleteProcess, dummyCompare);
+    List* queue2 = initializeListPointer(dummyPrint, deleteProcess, dummyCompare);
+    List* queue3 = initializeListPointer(dummyPrint, deleteProcess, dummyCompare);
+    List* queue4 = initializeListPointer(dummyPrint, deleteProcess, dummyCompare);
 
     for(int x=0; x<hole->numOfArray; x++){
         //split the data and dec vars
@@ -270,15 +333,15 @@ int main(int argc, char** argv){
             Process* process1 = newProcess();
             strcpy(process1->name, tempName);
             process1->size = tempSize; 
-            //process 1
+            //process 2
             Process* process2 = newProcess();
             strcpy(process2->name, tempName);
             process2->size = tempSize; 
-            //process 1
+            //process 3
             Process* process3 = newProcess();
             strcpy(process3->name, tempName);
             process3->size = tempSize; 
-            //process 1
+            //process 4
             Process* process4 = newProcess();
             strcpy(process4->name, tempName);
             process4->size = tempSize; 
@@ -291,10 +354,18 @@ int main(int argc, char** argv){
         }else{
             printf("Process ID %s, could not be added due to the size of memory\n", tempName);
         }//end if
+
+        freeToken(token);
     }//end for
     debug("\n");
 
-    
+    printf("---------------<<<((( FIRST FIT )))>>>---------------\n");
+    firstFit(queue1);
+    printf("-----------------------------------------------------\n");
 
+    clearList(queue1);
+    clearList(queue2);
+    clearList(queue3);
+    clearList(queue4);
     return 0;
 }//end main

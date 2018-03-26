@@ -1,0 +1,122 @@
+First Fit Algorithm
+A loaded, #processes=1, #holes=1, per_memusage=13.281250, cumulative per_memusage=13.281250
+B loaded, #processes=2, #holes=1, per_memusage=19.531250, cumulative per_memusage=16.406250
+C loaded, #processes=3, #holes=1, per_memusage=86.718750, cumulative per_memusage=39.843750
+D loaded, #processes=4, #holes=1, per_memusage=99.218750, cumulative per_memusage=54.687500
+E loaded, #processes=2, #holes=2, per_memusage=91.406250, cumulative per_memusage=62.031250
+F loaded, #processes=3, #holes=2, per_memusage=94.531250, cumulative per_memusage=67.447917
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=66.852679
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=67.968750
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=69.357639
+A loaded, #processes=5, #holes=2, per_memusage=93.750000, cumulative per_memusage=71.796875
+B loaded, #processes=4, #holes=3, per_memusage=36.718750, cumulative per_memusage=68.607955
+C loaded, #processes=3, #holes=2, per_memusage=86.718750, cumulative per_memusage=70.117188
+D loaded, #processes=3, #holes=1, per_memusage=85.937500, cumulative per_memusage=71.334135
+E loaded, #processes=1, #holes=1, per_memusage=78.906250, cumulative per_memusage=71.875000
+F loaded, #processes=2, #holes=1, per_memusage=82.031250, cumulative per_memusage=72.552083
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=71.972656
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=72.196691
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=72.656250
+A loaded, #processes=5, #holes=2, per_memusage=93.750000, cumulative per_memusage=73.766447
+B loaded, #processes=4, #holes=3, per_memusage=36.718750, cumulative per_memusage=71.914062
+C loaded, #processes=3, #holes=2, per_memusage=86.718750, cumulative per_memusage=72.619048
+D loaded, #processes=3, #holes=1, per_memusage=85.937500, cumulative per_memusage=73.224432
+E loaded, #processes=1, #holes=1, per_memusage=78.906250, cumulative per_memusage=73.471467
+F loaded, #processes=2, #holes=1, per_memusage=82.031250, cumulative per_memusage=73.828125
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=73.406250
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=73.497596
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=73.755787
+Total loads = 27, avg procs = 2.888889, avg holes = 1.703704, cumulative per_memusage=73.755787
+
+
+Best Fit Algorithm
+A loaded, #processes=1, #holes=1, per_memusage=13.281250, cumulative per_memusage=13.281250
+B loaded, #processes=2, #holes=1, per_memusage=19.531250, cumulative per_memusage=16.406250
+C loaded, #processes=3, #holes=1, per_memusage=86.718750, cumulative per_memusage=39.843750
+D loaded, #processes=4, #holes=1, per_memusage=99.218750, cumulative per_memusage=54.687500
+E loaded, #processes=2, #holes=2, per_memusage=91.406250, cumulative per_memusage=62.031250
+F loaded, #processes=3, #holes=2, per_memusage=94.531250, cumulative per_memusage=67.447917
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=66.852679
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=67.968750
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=69.357639
+A loaded, #processes=5, #holes=1, per_memusage=93.750000, cumulative per_memusage=71.796875
+B loaded, #processes=6, #holes=0, per_memusage=100.000000, cumulative per_memusage=74.360795
+C loaded, #processes=4, #holes=2, per_memusage=91.406250, cumulative per_memusage=75.781250
+D loaded, #processes=3, #holes=2, per_memusage=85.937500, cumulative per_memusage=76.562500
+E loaded, #processes=2, #holes=1, per_memusage=91.406250, cumulative per_memusage=77.622768
+F loaded, #processes=3, #holes=1, per_memusage=94.531250, cumulative per_memusage=78.750000
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=77.783203
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=77.665441
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=77.821181
+A loaded, #processes=5, #holes=2, per_memusage=93.750000, cumulative per_memusage=78.659539
+B loaded, #processes=5, #holes=1, per_memusage=96.875000, cumulative per_memusage=79.570312
+C loaded, #processes=4, #holes=2, per_memusage=91.406250, cumulative per_memusage=80.133929
+D loaded, #processes=3, #holes=2, per_memusage=85.937500, cumulative per_memusage=80.397727
+E loaded, #processes=1, #holes=1, per_memusage=78.906250, cumulative per_memusage=80.332880
+F loaded, #processes=2, #holes=1, per_memusage=82.031250, cumulative per_memusage=80.403646
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=79.718750
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=79.567308
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=79.600694
+Total loads = 27, avg procs = 3.148148, avg holes = 1.555556, cumulative per_memusage=79.600694
+
+
+Worst Fit Algorithm
+A loaded, #processes=1, #holes=1, per_memusage=13.281250, cumulative per_memusage=13.281250
+B loaded, #processes=2, #holes=1, per_memusage=19.531250, cumulative per_memusage=16.406250
+C loaded, #processes=3, #holes=1, per_memusage=86.718750, cumulative per_memusage=39.843750
+D loaded, #processes=4, #holes=1, per_memusage=99.218750, cumulative per_memusage=54.687500
+E loaded, #processes=2, #holes=2, per_memusage=91.406250, cumulative per_memusage=62.031250
+F loaded, #processes=3, #holes=2, per_memusage=94.531250, cumulative per_memusage=67.447917
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=66.852679
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=67.968750
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=69.357639
+A loaded, #processes=5, #holes=2, per_memusage=93.750000, cumulative per_memusage=71.796875
+B loaded, #processes=5, #holes=2, per_memusage=96.875000, cumulative per_memusage=74.076705
+C loaded, #processes=2, #holes=2, per_memusage=73.437500, cumulative per_memusage=74.023438
+D loaded, #processes=3, #holes=2, per_memusage=85.937500, cumulative per_memusage=74.939904
+E loaded, #processes=2, #holes=2, per_memusage=91.406250, cumulative per_memusage=76.116071
+F loaded, #processes=3, #holes=2, per_memusage=94.531250, cumulative per_memusage=77.343750
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=76.464844
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=76.424632
+I loaded, #processes=4, #holes=1, per_memusage=80.468750, cumulative per_memusage=76.649306
+A loaded, #processes=5, #holes=1, per_memusage=93.750000, cumulative per_memusage=77.549342
+B loaded, #processes=6, #holes=0, per_memusage=100.000000, cumulative per_memusage=78.671875
+C loaded, #processes=4, #holes=2, per_memusage=91.406250, cumulative per_memusage=79.278274
+D loaded, #processes=3, #holes=2, per_memusage=85.937500, cumulative per_memusage=79.580966
+E loaded, #processes=1, #holes=1, per_memusage=78.906250, cumulative per_memusage=79.551630
+F loaded, #processes=2, #holes=1, per_memusage=82.031250, cumulative per_memusage=79.654948
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=79.000000
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=78.876202
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=78.935185
+Total loads = 27, avg procs = 3.074074, avg holes = 1.629630, cumulative per_memusage=78.935185
+
+
+Next Fit Algorithm
+A loaded, #processes=1, #holes=1, per_memusage=13.281250, cumulative per_memusage=13.281250
+B loaded, #processes=2, #holes=1, per_memusage=19.531250, cumulative per_memusage=16.406250
+C loaded, #processes=3, #holes=1, per_memusage=86.718750, cumulative per_memusage=39.843750
+D loaded, #processes=4, #holes=1, per_memusage=99.218750, cumulative per_memusage=54.687500
+E loaded, #processes=2, #holes=2, per_memusage=91.406250, cumulative per_memusage=62.031250
+F loaded, #processes=3, #holes=2, per_memusage=94.531250, cumulative per_memusage=67.447917
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=66.852679
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=67.968750
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=69.357639
+A loaded, #processes=5, #holes=2, per_memusage=93.750000, cumulative per_memusage=71.796875
+B loaded, #processes=4, #holes=3, per_memusage=36.718750, cumulative per_memusage=68.607955
+C loaded, #processes=3, #holes=2, per_memusage=86.718750, cumulative per_memusage=70.117188
+D loaded, #processes=3, #holes=1, per_memusage=85.937500, cumulative per_memusage=71.334135
+E loaded, #processes=1, #holes=1, per_memusage=78.906250, cumulative per_memusage=71.875000
+F loaded, #processes=2, #holes=1, per_memusage=82.031250, cumulative per_memusage=72.552083
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=71.972656
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=72.196691
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=72.656250
+A loaded, #processes=5, #holes=2, per_memusage=93.750000, cumulative per_memusage=73.766447
+B loaded, #processes=4, #holes=3, per_memusage=36.718750, cumulative per_memusage=71.914062
+C loaded, #processes=3, #holes=2, per_memusage=86.718750, cumulative per_memusage=72.619048
+D loaded, #processes=3, #holes=1, per_memusage=85.937500, cumulative per_memusage=73.224432
+E loaded, #processes=1, #holes=1, per_memusage=78.906250, cumulative per_memusage=73.471467
+F loaded, #processes=2, #holes=1, per_memusage=82.031250, cumulative per_memusage=73.828125
+G loaded, #processes=2, #holes=2, per_memusage=63.281250, cumulative per_memusage=73.406250
+H loaded, #processes=3, #holes=2, per_memusage=75.781250, cumulative per_memusage=73.497596
+I loaded, #processes=4, #holes=2, per_memusage=80.468750, cumulative per_memusage=73.755787
+Total loads = 27, avg procs = 2.888889, avg holes = 1.703704, cumulative per_memusage=73.755787
