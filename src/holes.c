@@ -10,6 +10,8 @@
 #include <stdbool.h>
 #include "LinkedListAPI.h"
 #define MEM_SIZE 128
+#define TRUE 1
+#define FALSE 2
 #define DEBUG_HELPER true
 #define debug if(true)printf
 
@@ -20,15 +22,33 @@
 typedef struct{
     //firt fit
     int inserted;
+    //
     int numP;
     int numH;
     double cummulativeMem;
     int totalPID;
     double avgP;
     double avgH;
+    //
     int availableMem;
     bool flag;
 }FF;
+
+typedef struct{
+    int inserted;
+    int holeIndex; 
+    int found;
+    int numP; 
+    int numH;
+    double cumulativeMem; 
+    double totalPID;
+    double avgP; 
+    double avgH;
+    int flag;
+    int availableMem;
+    int smallestSpace; 
+    int smallestIndex;
+}BF;
 
 typedef struct{
     char ID;
@@ -41,24 +61,47 @@ typedef struct{
     char** array;
     int arraySize;
     char* fileName;
+    //main func
+
     //ff
     FF* ff;
+    BF* bf;
 }Hole;
 
 FF* newFF(){
     FF* new = malloc(sizeof(FF));
     //first fit
     new->inserted = 1;
+    //
     new->numP = 0;
     new->numH = 0;
     new->cummulativeMem = 0.0 ;
     new->totalPID = 0.0;
     new->avgP = 0.0;
     new->avgH = 0.0;
+    //
     new->availableMem = 0;
     new->flag = true;
     return new;
-}//end func
+}//end constructor
+
+BF* newBF(){
+    BF* new = malloc(sizeof(BF));
+    new->inserted = 1;
+    new->holeIndex = 0; 
+    new->found = 0;
+    new->numP = 0; 
+    new->numH = 0;
+    new->cumulativeMem = 0; 
+    new->totalPID = 0.0;
+    new->avgP = 0.0; 
+    new->avgH = 0.0;
+    new->flag = true;//need fix
+    new->availableMem = 0;
+    new->smallestSpace = MEM_SIZE; 
+    new->smallestIndex = 0;
+    return new;
+}//end constructor
 
 Process* newProcess(){
     Process* new = malloc(sizeof(Process));
@@ -75,6 +118,7 @@ Hole* newHole(){
     new->arraySize = 0;
     new->fileName = NULL;
     new->ff = newFF();
+    new->bf = newBF();
     return new;
 }//end constructor
 
@@ -172,6 +216,10 @@ int compareProcesses(const void* a, const void* b){
     }//end if
 }//end func
 
+/********************************************************
+ * function
+ ********************************************************/
+
 void printStat(Hole* hole, char id, double memUsagePercentage){
     printf("%c PID Loaded, #processes = %d, #holes %d, %%memusage = %.4lf, cumulative %%mem = %.4lf\n", 
         id, hole->ff->numP, hole->ff->numH, memUsagePercentage, hole->ff->cummulativeMem);
@@ -181,10 +229,6 @@ void printFinal(Hole* hole){
     printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cumulativeMem: %.4lf\n", 
         hole->ff->totalPID, hole->ff->avgP, hole->ff->avgH, hole->ff->cummulativeMem);
 }//end func
-
-/********************************************************
- * function
- ********************************************************/
 
 void initMem(char* mem, int size){
     for(int x=0; x<size; x++){
@@ -197,6 +241,15 @@ void resetFF(FF* ff){
     ff->numH = 0;
     ff->availableMem = 0;
     ff->flag = true;
+}//end func
+
+void resetBF(BF* bf){
+    bf->numP = 0;
+    bf->numH = 0;
+    bf->availableMem = 0;
+    bf->flag = FALSE;
+    bf->found = 0;
+    bf->smallestSpace = MEM_SIZE;
 }//end func
 
 void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
@@ -230,6 +283,11 @@ void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     printStat(hole, id, memUsagePercentage);
 }//end func
 
+void calcAverage(double avgP, double avgH, int numP, int numH, int totalPID){
+    avgP = ((avgP*(totalPID-1))+numP)/totalPID;
+    avgH = ((avgH*(totalPID-1))+numH)/totalPID;
+}//end func
+
 /********************************************************
  * op func
  ********************************************************/
@@ -238,20 +296,20 @@ void firstFit(Hole* hole, List* queue){
     //create mem
     char mem[MEM_SIZE];
     initMem(mem, MEM_SIZE);
-    Process* tempP = NULL;
-    Process* tempP2 = NULL;
+    Process* p1 = NULL;
+    Process* p2 = NULL;
     List* memQ = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
     
     //loop until length is 0
     while(getLength(*queue) != 0){
         resetFF(hole->ff);
-        if(hole->ff->inserted == 1){
-            tempP = pop(queue);
+        if(hole->ff->inserted == TRUE){
+            p1 = pop(queue);
             debug("queue length = %d\n", getLength(*queue));
         }//end if
 
         //dec spacec 
-        int space = tempP->memoryUsage;
+        int space = p1->memoryUsage;
 
         for(int x=0; x<MEM_SIZE; x++){
             //count avilable mem
@@ -265,12 +323,12 @@ void firstFit(Hole* hole, List* queue){
             if(hole->ff->availableMem >= space){
                 int end = x-space;
                 for(int y=x; y>end; y--){
-                    mem[y] = tempP->ID;
+                    mem[y] = p1->ID;
                 }//end for
                 hole->ff->inserted = 1;
                 hole->ff->flag = false;
-                insertBack(memQ, tempP);
-                printMem(memQ, mem, hole, tempP->ID);
+                insertBack(memQ, p1);
+                printMem(memQ, mem, hole, p1->ID);
                 hole->ff->avgP = ((hole->ff->avgP*(hole->ff->totalPID-1))+hole->ff->numP)/hole->ff->totalPID;
                 hole->ff->avgH = ((hole->ff->avgH*(hole->ff->totalPID-1))+hole->ff->numH)/hole->ff->totalPID;
                 break;
@@ -279,34 +337,115 @@ void firstFit(Hole* hole, List* queue){
 
         //for no space
         if(hole->ff->flag == true){
-            hole->ff->inserted = 0;
-            tempP2 = pop(memQ);
+            hole->ff->inserted = FALSE;
+            p2 = pop(memQ);
             debug("memQ length = %d\n", getLength(*memQ));
             //debug
-            if(tempP2 == NULL){
-                debug("tempP2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
+            if(p2 == NULL){
+                debug("p2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
                 break;
             }//end
             //look through the mem
             for(int x=0; x<MEM_SIZE; x++){
-                char id = tempP2->ID;
+                char id = p2->ID;
                 if(mem[x] == id){
                     mem[x] = '0';
                 }//end if
             }//end for
             
             //count swap mem
-            tempP2->memorySwap = tempP2->memorySwap + 1;
+            p2->memorySwap = p2->memorySwap + 1;
             
-            if(tempP2->memorySwap < 3){
-                insertBack(queue, tempP2);
+            if(p2->memorySwap < 3){
+                insertBack(queue, p2);
             }//end if
         }//end if
     }//end while
 
     printFinal(hole);
     clearList(memQ);
-}//end if
+}//end func
+
+void bestFit(Hole* hole, List* queue){
+    //create mem
+    char mem[MEM_SIZE];
+    initMem(mem, MEM_SIZE);
+    List* memQ = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+    Process* p1 = NULL;
+    Process* p2 = NULL;
+    //loop til there is nothing in queue
+    while(getLength(*queue) != 0){
+        resetBF(hole->bf);
+        if(hole->bf->inserted == TRUE){
+            p1 = pop(queue);
+        }//end if
+        
+        //set the amount space
+        int space = p1 ->memoryUsage;
+        
+        //loop mem
+        for(int x =0; x<MEM_SIZE; x++){
+
+            //check case if mem is avail
+            int memIsAvail = FALSE;
+            if(hole->bf->availableMem == 0){
+                memIsAvail = TRUE;
+            }//end if
+
+            if(memIsAvail == TRUE && mem[x] == '0'){
+                hole->bf->holeIndex = x;
+                hole->bf->availableMem = x;
+            }else if(memIsAvail == FALSE && mem[x] == '0'){
+                hole->bf->availableMem = hole->bf->availableMem + 1;
+            }else{
+                hole->bf->found = TRUE;
+                
+                //check mem is out of bound
+                int isLessThanSmallestPlace = FALSE;
+                int isGreaterThanSpace = FALSE;
+                if(hole->bf->availableMem <= hole->bf->smallestSpace){
+                    isLessThanSmallestPlace = TRUE;
+                    if(hole->bf->availableMem >= space){
+                        isGreaterThanSpace = TRUE;
+                    }//end if
+                }//end if
+
+                //search for the smallest hole
+                if(isLessThanSmallestPlace == TRUE && isGreaterThanSpace == TRUE){
+                    hole->bf->smallestIndex = hole->bf->holeIndex;
+                    hole->bf->smallestSpace = hole->bf->availableMem;
+                    hole->bf->flag = TRUE;
+                }//end if
+
+                //set available mem to 0
+                hole->bf->availableMem = 0;
+            }//end
+        }//end for
+
+        if(hole->bf->flag == FALSE){
+            hole->bf->inserted = FALSE;
+            p2 = pop(memQ);
+            for(int x=0; x<MEM_SIZE; x++){
+                if(mem[x] == p2->ID){
+                    mem[x] = '0';
+                }//end if
+                p2->memorySwap = p2->memorySwap + 1;
+                if(p2->memorySwap < 3){
+                    insertBack(queue, p2);
+                }//end if
+            }//end for
+        }else{
+            int end = hole->bf->smallestIndex+space;
+            for(int x=0; x<end; x++){
+                mem[x] = p1->ID;
+            }//end for
+            hole->bf->inserted = TRUE;
+            hole->bf->flag = TRUE;
+            insertBack(memQ, p1);
+            calcAverage(hole->bf->avgP, hole->bf->avgH, hole->bf->numP, hole->bf->numH, hole->bf->totalPID);
+        }//end if
+    }//end while
+}//end func
 
 /********************************************************
  * main
