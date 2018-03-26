@@ -172,6 +172,16 @@ int compareProcesses(const void* a, const void* b){
     }//end if
 }//end func
 
+void printStat(Hole* hole, char id, double memUsagePercentage){
+    printf("%c PID Loaded, #processes = %d, #holes %d, %%memusage = %.4lf, cumulative %%mem = %.4lf\n", 
+        id, hole->ff->numP, hole->ff->numH, memUsagePercentage, hole->ff->cummulativeMem);
+}//end func
+
+void printFinal(Hole* hole){
+    printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cumulativeMem: %.4lf\n", 
+        hole->ff->totalPID, hole->ff->avgP, hole->ff->avgH, hole->ff->cummulativeMem);
+}//end func
+
 /********************************************************
  * function
  ********************************************************/
@@ -217,8 +227,7 @@ void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
     double memID = hole->ff->cummulativeMem * hole->ff->totalPID;
     hole->ff->cummulativeMem = (memID + memUsagePercentage) / (hole->ff->totalPID + 1);
     hole->ff->totalPID = hole->ff->totalPID + 1;
-    printf("%c PID Loaded, #processes = %d, #holes %d, %%memusage = %.4lf, cumulative %%mem = %.4lf\n", 
-        id, hole->ff->numP, hole->ff->numH, memUsagePercentage, hole->ff->cummulativeMem);
+    printStat(hole, id, memUsagePercentage);
 }//end func
 
 /********************************************************
@@ -295,9 +304,7 @@ void firstFit(Hole* hole, List* queue){
         }//end if
     }//end while
 
-    printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cumulativeMem: %.4lf\n", 
-        hole->ff->totalPID, hole->ff->avgP, hole->ff->avgH, hole->ff->cummulativeMem);
-
+    printFinal(hole);
     clearList(memQ);
 }//end if
 
