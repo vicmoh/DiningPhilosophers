@@ -359,3 +359,22 @@ void* pop(List* list){
     }//end if
     return NULL;
 }//end func
+
+void* prevElement(ListIterator* iter){
+    //dec vars
+    void* dataToBeReturned;
+    //if the current is not null, iterate
+    if(iter->current != NULL){
+        dataToBeReturned = iter->current->data;
+        iter->current = iter->current->previous;
+        return dataToBeReturned;
+    }else{
+        return NULL;
+    }//end if
+}//end func
+
+ListIterator createBackIterator(List list){
+    ListIterator iterator;
+    iterator.current = list.tail;
+    return iterator;
+}//end func

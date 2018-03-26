@@ -58,5 +58,7 @@ void* pop(List* list);
 char* dummyPrint(void* toBePrinted);
 void dummyDelete(void* toBeDeleted);
 int dummyCompare(const void* first, const void* second);
+void* prevElement(ListIterator* iter);
+ListIterator createBackIterator(List list);
 
 #endif

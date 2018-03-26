@@ -22,7 +22,7 @@ typedef struct{
     int inserted;
     int numP;
     int numH;
-    double cumulativeMem;
+    double cummulativeMem;
     int totalPID;
     int avgP;
     int avgH;
@@ -51,7 +51,7 @@ FF* newFF(){
     new->inserted = 1;
     new->numP = 0;
     new->numH = 0;
-    new->cumulativeMem = 0.0 ;
+    new->cummulativeMem = 0.0 ;
     new->totalPID = 0.0;
     new->avgP = 0.0;
     new->avgH = 0.0;
@@ -189,6 +189,11 @@ void resetFF(FF* ff){
     ff->flag = true;
 }//end func
 
+void printMem(List* memQ, double* cummulativeMem, Hole* hole){
+    int used = 0;
+    
+}//end func
+
 /********************************************************
  * op func
  ********************************************************/
@@ -199,6 +204,7 @@ void firstFit(Hole* hole, List* queue){
     initMem(mem, MEM_SIZE);
     Process* tempP = NULL;
     Process* tempP2 = NULL;
+    List* memQ = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
 
     //loop until length is 0
     while(getLength(*queue) != 0){
@@ -210,9 +216,29 @@ void firstFit(Hole* hole, List* queue){
         //dec spacec 
         int space = tempP->memoryUsage;
 
-        
+        for(int x=0; x<MEM_SIZE; x++){
+            //count avilable mem
+            if(mem[x] != '0'){
+                hole->ff->availableMem = 0;
+            }else{
+                hole->ff->availableMem = hole->ff->availableMem + 1;
+            }//end if
+
+            //insert processes
+            if(hole->ff->availableMem >= space){
+                int end = x-space;
+                for(int y=x; y>end; y--){
+                    mem[y] = tempP->ID;
+                }//end for
+                hole->ff->flag = 1;
+                hole->ff->flag = false;
+                insertBack(memQ, tempP);
+            }//end if
+        }//end for
 
     }//end while
+    
+    clearList(memQ);
 }//end if
 
 /********************************************************
