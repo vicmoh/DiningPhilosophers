@@ -199,13 +199,18 @@ void firstFit(Hole* hole, List* queue){
     initMem(mem, MEM_SIZE);
     Process* tempP = NULL;
     Process* tempP2 = NULL;
+
+    //loop until length is 0
     while(getLength(*queue) != 0){
         resetFF(hole->ff);
         if(hole->ff->inserted == 1){
             tempP = pop(queue);
         }//end if
 
+        //dec spacec 
         int space = tempP->memoryUsage;
+
+        
 
     }//end while
 }//end if
