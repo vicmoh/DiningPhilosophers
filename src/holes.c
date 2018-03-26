@@ -18,7 +18,7 @@
  ********************************************************/
 
 typedef struct{
-    char processID;
+    char ID;
     int memoryUsage;
     int memorySwap;
 }Process;
@@ -31,7 +31,7 @@ typedef struct{
 
 Process* newProcess(){
     Process* new = malloc(sizeof(Process));
-    new->processID = 0;
+    new->ID = 0;
     new->memoryUsage = 0;
     new->memorySwap = 0;
     return new; 
@@ -98,8 +98,8 @@ char** readFileByLine(char* fileName, int* arraySize, const int lineSize){
     //while (fgets(line, sizeof(line), filePointer) != NULL) {
     while (fgets(line, sizeof(line), filePointer) != NULL) {
         //copy string
-        if(DEBUG_HELPER)printf("line %d: %s", numberOfLines, line);
         line[strcspn(line, "\r\n")] = '\0';
+        if(DEBUG_HELPER)printf("line %d: (%s)\n", numberOfLines, line);
         stringArray[numberOfLines] = setString(line); 
         //debug("String Length: %d\n", (int)strlen(line));
         numberOfLines++;
@@ -107,7 +107,7 @@ char** readFileByLine(char* fileName, int* arraySize, const int lineSize){
         stringArray = realloc(stringArray, sizeof(stringArray)*(numberOfLines+1));
         //go to the next
     }//end loop
-    if(DEBUG_HELPER)printf("\nString loaded...\n");
+    if(DEBUG_HELPER)printf("String loaded...\n");
     
     //return
     *arraySize = numberOfLines; 
@@ -123,6 +123,23 @@ void freeStringArray(char** array, int arraySize){
 }//end func
 
 /********************************************************
+ * function for linklist
+ ********************************************************/
+
+void deleteProcess(void* process){
+    Process* object = (Process*)process;
+    free(object);
+}//end func
+
+int compareProcesses(const void* a, const void* b){
+    if(a == b){
+        return 0;
+    }else{
+        return -1;
+    }//end if
+}//end func
+
+/********************************************************
  * main
  ********************************************************/
 
@@ -135,10 +152,45 @@ int main(int argc, char** argv){
     //dec object hole
     Hole* hole = newHole();
     hole->fileName = setString(argv[1]);
-    readFileByLine(hole->fileName, &hole->arraySize, 256);
+    hole->array = readFileByLine(hole->fileName, &hole->arraySize, 256);
     
-    
+    //dec queues
+    List* queue1 = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+    List* queue2 = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+    List* queue3 = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+    List* queue4 = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
+
+    //assign the data
+    for(int x=0; x<hole->arraySize; x++){
+        //create a splitter for the data
+        int tokenSize = 0;
+        char** token = split(hole->array[x], " ", &tokenSize);
+        debug("debug: id = %c, memUsage = %s\n", token[0][0], token[1]);
+        //assign p1
+        Process* process1 = newProcess();
+        process1->ID = token[0][0];
+        process1->memoryUsage = atoi(token[1]);
+        //assign p2
+        Process* process2 = newProcess();
+        process2->ID = token[0][0];
+        process2->memoryUsage = atoi(token[1]);
+        //assign p3
+        Process* process3 = newProcess();
+        process3->ID = token[0][0];
+        process3->memoryUsage = atoi(token[1]);
+        //assign p4
+        Process* process4 = newProcess();
+        process4->ID = token[0][0];
+        process4->memoryUsage = atoi(token[1]);
+        //free the token
+        freeStringArray(token, tokenSize);
+    }//end for
+
     
 
+    clearList(queue1);
+    clearList(queue2);
+    clearList(queue3);
+    clearList(queue4);
     return 0;    
 }//end main

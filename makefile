@@ -16,13 +16,13 @@ dine:
 	$(CC)  $(CFLAGS) src/dine.c -o bin/dine -pthread
 
 holes:
-	$(CC)  $(CFLAGS) src/holes.c -o src/LinkedListAPI.c bin/holes
+	$(CC)  $(CFLAGS) src/holes.c src/LinkedListAPI.c -o bin/holes
 
 runDine:
 	./bin/dine 3 2
 
 runHoles:
-	./bin/holes ./assets/data.txt
+	./bin/holes ./assets/data2.txt
 
 clean:
 	rm bin/*
