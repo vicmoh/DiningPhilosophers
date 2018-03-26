@@ -54,6 +54,7 @@ void* nextElement(ListIterator* iter);
 int getLength(List list);
 void* findElement(List list, bool (*customCompare)(const void* first,const void* second), const void* searchRecord);
 //dummy functions for init the list
+void* pop(List* list);
 char* dummyPrint(void* toBePrinted);
 void dummyDelete(void* toBeDeleted);
 int dummyCompare(const void* first, const void* second);

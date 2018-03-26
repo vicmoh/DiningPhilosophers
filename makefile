@@ -16,7 +16,7 @@ dine:
 	$(CC)  $(CFLAGS) src/dine.c -o bin/dine -pthread
 
 holes:
-	$(CC)  $(CFLAGS) src/holes.c src/LinkedListAPI.c -o bin/holes -lm
+	$(CC)  $(CFLAGS) src/holes.c -o bin/holes
 
 runDine:
 	./bin/dine 3 2

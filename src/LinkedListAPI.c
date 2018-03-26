@@ -214,6 +214,29 @@ void* deleteDataFromList(List* list, void* toBeDeleted){
     return NULL;
 }//end func
 
+void* pop(List* list){
+    //check if the list and data is empty
+    if(list == NULL){
+        return NULL;
+    }//end
+    //dec vars
+    void* nodeToBeReturned = NULL;
+    Node* nodeToBeDeleted = NULL;
+    Node* currentNode = list->head;
+    //case if the node is at the head
+    if(currentNode->previous == NULL){
+        nodeToBeDeleted = currentNode;
+        nodeToBeReturned = currentNode->data;
+        list->head = currentNode->next;
+        list->head->previous = NULL;
+        //free the node and returned
+        free(nodeToBeDeleted);
+        list->length--;
+        return nodeToBeReturned;
+    }//end if
+    return NULL;
+}//end func
+
 void* getFromFront(List list){
     //if head exist get the head, else return null
     if(list.head != NULL){
@@ -325,8 +348,8 @@ void* findElement(List list, bool (*customCompare)(const void* first,const void*
 }//end func
 
 char* dummyPrint(void* toBePrinted){
-    char* newString = calloc(256, sizeof(char));
-    strcat(newString, "");
+    char* newString = calloc(256, sizeof(char*));
+    strcpy(newString, "\0");
     return newString;
 }//end func
 
