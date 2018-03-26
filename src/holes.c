@@ -24,8 +24,8 @@ typedef struct{
     int numH;
     double cummulativeMem;
     int totalPID;
-    int avgP;
-    int avgH;
+    double avgP;
+    double avgH;
     int availableMem;
     bool flag;
 }FF;
@@ -189,9 +189,36 @@ void resetFF(FF* ff){
     ff->flag = true;
 }//end func
 
-void printMem(List* memQ, double* cummulativeMem, Hole* hole){
+void printMem(List* memQ, char mem[MEM_SIZE], Hole* hole, char id){
+    //dec vars
+    int numOfProcess = getLength(*memQ);
+    hole->ff->numP = numOfProcess;
     int used = 0;
-    
+    //loop till mem size
+    for(int x=0; x<MEM_SIZE-1; x++){
+        if(mem[x+1] != '0' && mem[x] == '0'){
+            hole->ff->numH = hole->ff->numH + 1;
+        }//end if
+        
+        if(mem[x] != '0'){
+            used = used + 1;
+        }//end if
+    }//end for
+
+    if(mem[MEM_SIZE-1] == '0'){
+        hole->ff->numH = hole->ff->numH + 1;
+    }else if(mem[MEM_SIZE-1] != '0'){
+        used = used + 1;
+    }//end if
+
+    //calc the process
+    double memUsage = (double)(used)/MEM_SIZE;
+    double memUsagePercentage = memUsage * 100;
+    double memID = hole->ff->cummulativeMem * hole->ff->totalPID;
+    hole->ff->cummulativeMem = (memID + memUsagePercentage) / (hole->ff->totalPID + 1);
+    hole->ff->totalPID = hole->ff->totalPID + 1;
+    printf("%c PID Loaded, #processes = %d, #holes %d, %%memusage = %.4lf, cumulative %%mem = %.4lf\n", 
+        id, hole->ff->numP, hole->ff->numH, memUsagePercentage, hole->ff->cummulativeMem);
 }//end func
 
 /********************************************************
@@ -205,12 +232,13 @@ void firstFit(Hole* hole, List* queue){
     Process* tempP = NULL;
     Process* tempP2 = NULL;
     List* memQ = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
-
+    
     //loop until length is 0
     while(getLength(*queue) != 0){
         resetFF(hole->ff);
         if(hole->ff->inserted == 1){
             tempP = pop(queue);
+            debug("queue length = %d\n", getLength(*queue));
         }//end if
 
         //dec spacec 
@@ -230,14 +258,46 @@ void firstFit(Hole* hole, List* queue){
                 for(int y=x; y>end; y--){
                     mem[y] = tempP->ID;
                 }//end for
-                hole->ff->flag = 1;
+                hole->ff->inserted = 1;
                 hole->ff->flag = false;
                 insertBack(memQ, tempP);
+                printMem(memQ, mem, hole, tempP->ID);
+                hole->ff->avgP = ((hole->ff->avgP*(hole->ff->totalPID-1))+hole->ff->numP)/hole->ff->totalPID;
+                hole->ff->avgH = ((hole->ff->avgH*(hole->ff->totalPID-1))+hole->ff->numH)/hole->ff->totalPID;
+                break;
             }//end if
         }//end for
 
+        //for no space
+        if(hole->ff->flag == true){
+            hole->ff->inserted = 0;
+            tempP2 = pop(memQ);
+            debug("memQ length = %d\n", getLength(*memQ));
+            //debug
+            if(tempP2 == NULL){
+                debug("tempP2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                break;
+            }//end
+            //look through the mem
+            for(int x=0; x<MEM_SIZE; x++){
+                char id = tempP2->ID;
+                if(mem[x] == id){
+                    mem[x] = '0';
+                }//end if
+            }//end for
+            
+            //count swap mem
+            tempP2->memorySwap = tempP2->memorySwap + 1;
+            
+            if(tempP2->memorySwap < 3){
+                insertBack(queue, tempP2);
+            }//end if
+        }//end if
     }//end while
-    
+
+    printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cumulativeMem: %.4lf\n", 
+        hole->ff->totalPID, hole->ff->avgP, hole->ff->avgH, hole->ff->cummulativeMem);
+
     clearList(memQ);
 }//end if
 
@@ -263,6 +323,7 @@ int main(int argc, char** argv){
     List* queue4 = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
 
     //assign the data
+    debug("hole->arraySize = %d\n", hole->arraySize);
     for(int x=0; x<hole->arraySize; x++){
         //create a splitter for the data
         int tokenSize = 0;

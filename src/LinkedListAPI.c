@@ -344,16 +344,30 @@ void* pop(List* list){
     }//end
     //dec vars
     void* dataToBeReturned;
-    Node* nodeToBeDeleted;
+    Node* nodeToBeDeleted = list->head;
     Node* currentNode = list->head;
+    if(list->length == 0 || currentNode == NULL){
+        return NULL;
+    }//end if
     //case if the node is at the head
-    if(currentNode->previous == NULL){
+    if(currentNode->next != NULL){
         nodeToBeDeleted = currentNode;
         list->head = currentNode->next;
         list->head->previous = NULL;
         //free the node and returned
         dataToBeReturned = currentNode->data;
         free(nodeToBeDeleted);
+        list->length--;
+        //printf("list->length = %d\n", list->length);
+        return dataToBeReturned;
+    }else{
+        nodeToBeDeleted = currentNode;
+        //free the node and returned
+        dataToBeReturned = currentNode->data;
+        free(nodeToBeDeleted);
+        //its done
+        list->tail = NULL;
+        list->head = NULL;
         list->length--;
         return dataToBeReturned;
     }//end if
