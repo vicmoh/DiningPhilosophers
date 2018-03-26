@@ -12,7 +12,7 @@
 #define MEM_SIZE 128
 #define TRUE 1
 #define FALSE 2
-#define DEBUG_HELPER true
+#define DEBUG_HELPER false
 #define debug if(true)printf
 
 /********************************************************
@@ -163,7 +163,7 @@ char** readFileByLine(char* fileName, int* arraySize, const int lineSize){
         line[strcspn(line, "\r\n")] = '\0';
         if(DEBUG_HELPER)printf("line %d: (%s)\n", numberOfLines, line);
         stringArray[numberOfLines] = setString(line); 
-        //debug("String Length: %d\n", (int)strlen(line));
+        //if(DEBUG_HELPER)printf("String Length: %d\n", (int)strlen(line));
         numberOfLines++;
         //create string array from each line
         stringArray = realloc(stringArray, sizeof(stringArray)*(numberOfLines+1));
@@ -292,7 +292,7 @@ void firstFit(Hole* hole, List* queue){
         resetFF(hole->ff);
         if(hole->ff->inserted == TRUE){
             p1 = pop(queue);
-            debug("queue length = %d\n", getLength(*queue));
+            if(DEBUG_HELPER)printf("queue length = %d\n", getLength(*queue));
         }//end if
 
         //dec spacec 
@@ -325,10 +325,10 @@ void firstFit(Hole* hole, List* queue){
         if(hole->ff->flag == true){
             hole->ff->inserted = FALSE;
             p2 = pop(memQ);
-            debug("memQ length = %d\n", getLength(*memQ));
-            //debug
+            if(DEBUG_HELPER)printf("memQ length = %d\n", getLength(*memQ));
+            //if(DEBUG_HELPER)printf
             if(p2 == NULL){
-                debug("p2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                if(DEBUG_HELPER)printf("p2 == NULL !!!!!!!!!!!!!!!!!!!!!!!!!\n");
                 break;
             }//end
             //look through the mem
@@ -460,12 +460,12 @@ int main(int argc, char** argv){
     List* queue4 = initializeListPointer(dummyPrint, deleteProcess, compareProcesses);
 
     //assign the data
-    debug("hole->arraySize = %d\n", hole->arraySize);
+    if(DEBUG_HELPER)printf("hole->arraySize = %d\n", hole->arraySize);
     for(int x=0; x<hole->arraySize; x++){
         //create a splitter for the data
         int tokenSize = 0;
         char** token = split(hole->array[x], " ", &tokenSize);
-        debug("debug: id = %c, memUsage = %s\n", token[0][0], token[1]);
+        if(DEBUG_HELPER)printf("debug: id = %c, memUsage = %s\n", token[0][0], token[1]);
         //assign p1
         Process* process1 = newProcess();
         process1->ID = token[0][0];
