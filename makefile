@@ -24,5 +24,8 @@ runDine:
 runHoles:
 	./bin/holes ./assets/data2.txt
 
+valgrind:
+	valgrind --leak-check=full ./bin/holes ./assets/data2.txt
+
 clean:
 	rm bin/*

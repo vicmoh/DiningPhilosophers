@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "LinkedListAPI.h"
-#define MEM_SIZE 128;
+#define MEM_SIZE 128
 #define DEBUG_HELPER true
 #define debug if(true)printf
 
@@ -18,16 +18,47 @@
  ********************************************************/
 
 typedef struct{
+    //firt fit
+    int inserted;
+    int numP;
+    int numH;
+    double cumulativeMem;
+    int totalPID;
+    int avgP;
+    int avgH;
+    int availableMem;
+    bool flag;
+}FF;
+
+typedef struct{
     char ID;
     int memoryUsage;
     int memorySwap;
 }Process;
 
 typedef struct{
+    //data
     char** array;
     int arraySize;
     char* fileName;
+    //ff
+    FF* ff;
 }Hole;
+
+FF* newFF(){
+    FF* new = malloc(sizeof(FF));
+    //first fit
+    new->inserted = 1;
+    new->numP = 0;
+    new->numH = 0;
+    new->cumulativeMem = 0.0 ;
+    new->totalPID = 0.0;
+    new->avgP = 0.0;
+    new->avgH = 0.0;
+    new->availableMem = 0;
+    new->flag = true;
+    return new;
+}//end func
 
 Process* newProcess(){
     Process* new = malloc(sizeof(Process));
@@ -39,14 +70,16 @@ Process* newProcess(){
 
 Hole* newHole(){
     Hole* new = malloc(sizeof(Hole));
+    //data
     new->array = NULL;
     new->arraySize = 0;
     new->fileName = NULL;
+    new->ff = newFF();
     return new;
 }//end constructor
 
 /********************************************************
- * helper functions, some of them are from my old  class
+ * helper functions, some of them are from my old course
  ********************************************************/
 
 char* setString(char* string){
@@ -140,6 +173,44 @@ int compareProcesses(const void* a, const void* b){
 }//end func
 
 /********************************************************
+ * function
+ ********************************************************/
+
+void initMem(char* mem, int size){
+    for(int x=0; x<size; x++){
+        mem[x] = '0';
+    }//end for
+}//end func
+
+void resetFF(FF* ff){
+    ff->numP = 0;
+    ff->numH = 0;
+    ff->availableMem = 0;
+    ff->flag = true;
+}//end func
+
+/********************************************************
+ * op func
+ ********************************************************/
+
+void firstFit(Hole* hole, List* queue){
+    //create mem
+    char mem[MEM_SIZE];
+    initMem(mem, MEM_SIZE);
+    Process* tempP = NULL;
+    Process* tempP2 = NULL;
+    while(getLength(*queue) != 0){
+        resetFF(hole->ff);
+        if(hole->ff->inserted == 1){
+            tempP = pop(queue);
+        }//end if
+
+        int space = tempP->memoryUsage;
+
+    }//end while
+}//end if
+
+/********************************************************
  * main
  ********************************************************/
 
@@ -182,12 +253,27 @@ int main(int argc, char** argv){
         Process* process4 = newProcess();
         process4->ID = token[0][0];
         process4->memoryUsage = atoi(token[1]);
+
+        //insert to the back
+        insertBack(queue1, process1);
+        insertBack(queue2, process2);
+        insertBack(queue3, process3);
+        insertBack(queue4, process4);
+
         //free the token
         freeStringArray(token, tokenSize);
     }//end for
 
-    
+    printf("----------------------------<<<((( FIRST FIT )))>>>----------------------------\n");
+    firstFit(hole, queue1);
+    printf("-------------------------------------------------------------------------------\n");
 
+
+    //free the hole
+    free(hole->fileName);
+    freeStringArray(hole->array, hole->arraySize);
+    free(hole);
+    //free queue
     clearList(queue1);
     clearList(queue2);
     clearList(queue3);
