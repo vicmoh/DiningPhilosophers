@@ -27,7 +27,7 @@ Example
 so please make sure you run the program correctly :)
 
 ---------------------<<< REFERENCE >>>---------------------
-* I use linklist API that I created from the CIS*2750 course
+* I use linklist API that I created from the CIS*2750 course and modified to have pop functions
 * https://www.geeksforgeeks.org/program-next-fit-algorithm-memory-management/
 * https://www.geeksforgeeks.org/dining-philosophers-solution-using-monitors/
 * https://osandnetworkingcslab.wordpress.com/implementation-of-dining-philosophers-using-threads/
