@@ -1,6 +1,6 @@
 /***************************
  * Name: Vicky Mohammad
- * Date: Feb 21, 2018
+ * Date: March 23, 2018
  ***************************/
 
 --------------<<< HOW TO RUN THE PROGRAM >>>--------------
@@ -62,6 +62,6 @@ which will the simulation of the process being assign in representing in megabyt
 for the implementation, each implementation assumes that each process will be a unique, letter
 alphabets from A to Z, if it is not a letter it may crash the program, hence process are 
 limited to 26 characters. also, the size of the proccess required is equal or less than 128 mb and
-greater than or eqaal to 1 mb within the 1 - 128mb.
+greater than or eqaal to 1 mb within the 1 - 128mb. 
 
 

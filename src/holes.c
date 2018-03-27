@@ -14,7 +14,7 @@
 #define TRUE 1
 #define FALSE 0
 #define DEBUG_HELPER false
-#define debug if(true)printf
+#define debug if(false)printf
 
 /********************************************************
  * header
@@ -195,6 +195,9 @@ char** readFileByLine(char* fileName, int* arraySize, const int lineSize){
     //if file doesnt exist
     if(filePointer == NULL) {
         if(DEBUG_HELPER)printf("No such file.\n");
+        printf("Invalid file, please re-run and make sure that it is the right file name\n");
+        printf("Exiting program...\n");
+        exit(0);
         free(stringArray);
         return NULL;
     }//end if

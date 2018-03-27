@@ -104,8 +104,7 @@ Dine* newDine(int numOfPhils){
     Dine* new = malloc(sizeof(Dine));
 
     // initilizie new philosophers
-    // For each philosopher, 
-    //assign it two forks for picking the nearest
+    // For each philosopher, assign it two forks for picking the nearest
     new->phil = calloc(numOfPhils, sizeof(Philosopher*));
     for(int x=0; x<numOfPhils; x++){
         new->phil[x] = newPhilosopher();
