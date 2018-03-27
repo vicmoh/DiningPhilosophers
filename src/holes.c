@@ -2,6 +2,7 @@
  * Vicky Mohammad
  * 0895381
  * March 22, 2018
+ * https://www.geeksforgeeks.org/program-next-fit-algorithm-memory-management/
  ********************************************/
 
 #include <stdlib.h>
@@ -151,7 +152,7 @@ Hole* newHole(){
 }//end constructor
 
 /********************************************************
- * helper functions, some of them are from my old course
+ * helper functions, some of these func are from other course from 2750
  ********************************************************/
 
 char* setString(char* string){
@@ -249,12 +250,12 @@ int compareProcesses(const void* a, const void* b){
  ********************************************************/
 
 void printStat(Hole* hole, char id, double memUsagePercentage){
-    printf("%c PID Loaded, #processes = %d, #holes %d, %%memusage = %.4lf, cumulative %%mem = %.4lf\n", 
+    printf("%c Loaded, #processes = %d, #holes = %d, per_memusage = %.4lf, cummulative per_memusage = %.4lf\n", 
         id, hole->numP, hole->numH, memUsagePercentage, hole->cummulativeMem);
 }//end func
 
 void printFinal(Hole* hole){
-    printf("Total Loads: %d, average #processes: %.4lf, average #holes: %.4lf, %%cummulativeMem: %.4lf\n", 
+    printf("Total Load = %d, avg procs = %.4lf, avg holes = %.4lf, cummulative per_memusage = %.4lf\n", 
         hole->totalPID, hole->avgP, hole->avgH, hole->cummulativeMem);
 }//end func
 

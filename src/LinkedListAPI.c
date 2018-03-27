@@ -2,7 +2,7 @@
  * @file LinkedListAPI.c
  * @author Vicky Mohammad
  * @date 2018
- * @brief A doubly linklist API
+ * @brief A custom doubly linklist API from the 2750 course
  */
 
 #include <stdio.h>
