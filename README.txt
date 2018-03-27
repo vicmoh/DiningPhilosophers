@@ -23,7 +23,8 @@ Example
 * if program file is not formated based on "alphbet space numbers" or any empty line, it may crash
 * my ouput is 4 decimal places so, the answer should be around more less the same.
 * program may crash if file is not the right extension, i tested on txt, so txt data file should work
-* if you input the wrong file or file that doesnt exist it may crash or give 
+* if you input the wrong file or file that doesnt exist it may crash or give 0.00 value ouput
+so please make sure you run the program correctly :)
 
 ---------------------<<< REFERENCE >>>---------------------
 * I use linklist API that I created from the CIS*2750 course
@@ -33,7 +34,9 @@ Example
 
 ---------------------<<< REPORT >>>---------------------
 
+--------------------
 Dinning Philosophers
+--------------------
 
 I implemented using pthread and mutexes instead of semaphore, for some reason
 semaphore does not work on windows bash. For Dining philosophers basically each philosophers
@@ -49,7 +52,16 @@ x is greater than 0, the philosophers is assigned fork or shopstick [x-1] and as
 are posible wait times, these wait times are randomize between either 1 second or 2 second, 
 hence the  output for running the program will alway be different.
 
+----------------------
 Hole Memory Management
+----------------------
 
+For the hole memory mamnagment i use a bitmap using and array of char with the size of 128
+the rpcoess id which will be the letter is written or assign to the index map char array 
+which will the simulation of the process being assign in representing in megabyte for each.
+for the implementation, each implementation assumes that each process will be a unique, letter
+alphabets from A to Z, if it is not a letter it may crash the program, hence process are 
+limited to 26 characters. also, the size of the proccess required is equal or less than 128 mb and
+greater than or eqaal to 1 mb within the 1 - 128mb.
 
 
