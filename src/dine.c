@@ -1,6 +1,5 @@
 /********************************************
  * Vicky Mohammad
- * 0895381
  * March 22, 2018
  * https://www.geeksforgeeks.org/dining-philosophers-solution-using-monitors/
  * https://osandnetworkingcslab.wordpress.com/implementation-of-dining-philosophers-using-threads/

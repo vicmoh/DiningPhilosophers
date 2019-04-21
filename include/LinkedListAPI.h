@@ -3,7 +3,6 @@
  * @author Vicky Mohammad
  * @date 2018
  * @brief A doubly linklist API
- * this is API is a modified verion from CIS*2750 that I made
  */
 
 #ifndef _LIST_API_
